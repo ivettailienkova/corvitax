@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Spoor</title>
+<meta name="theme-color" content="#F7F5F0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Spoor">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root{--bg:#F7F5F0;--ink:#1A1F1D;--mut:#5E6662;--line:#DCD8CF;--acc:#1E5E57;--neg:#B4532A;--soft:#EDEAE2}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:0 24px}
+header.top{border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;z-index:5;padding-top:env(safe-area-inset-top)}
+header.top .wrap{display:flex;align-items:center;gap:32px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;letter-spacing:-.01em}
+.brand svg{width:28px;height:28px}
+nav{display:flex;gap:4px;overflow-x:auto}
+nav button{background:none;border:0;font:inherit;color:var(--mut);padding:8px 12px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+nav button.on{color:var(--ink);font-weight:600;border-bottom-color:var(--acc)}
+.demo{color:var(--mut);font-size:13px;padding-top:12px}
+h1{font-size:40px;line-height:1.15;margin:40px 0 8px;letter-spacing:-.02em;font-weight:700}
+h2{font-size:26px;line-height:1.25;margin:48px 0 6px;font-weight:700}
+h3{font-size:17px;margin:28px 0 4px;font-weight:600}
+.lead{font-weight:600;max-width:640px;margin:0 0 20px}
+p{max-width:640px}
+.mut{color:var(--mut)}.small{font-size:13px}
+button.btn,a.btn{font:inherit;font-size:15px;background:var(--acc);color:#fff;border:0;padding:9px 16px;border-radius:6px;cursor:pointer}
+button.ghost,label.ghost,a.ghost{font:inherit;font-size:15px;background:none;color:var(--acc);border:1px solid var(--acc);padding:8px 14px;border-radius:6px;cursor:pointer;display:inline-block}
+button.link{background:none;border:0;color:var(--acc);font:inherit;text-decoration:underline;cursor:pointer;padding:0}
+select,input{font:inherit;font-size:16px;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink)}
+.row{display:grid;grid-template-columns:220px 1fr;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.row>div{min-width:0}
+.row .lab{font-weight:600}.row .lab span{display:block;font-weight:400;font-size:13px;color:var(--mut)}
+.seg{display:flex;flex-wrap:wrap;gap:4px}
+.seg button{font:inherit;font-size:14px;min-width:36px;padding:6px 8px;border:1px solid var(--line);background:#fff;border-radius:6px;cursor:pointer;color:var(--ink)}
+.seg button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.dnav{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 8px}
+.saved{font-size:13px;color:var(--mut);margin-left:8px}
+table{border-collapse:collapse;width:100%}
+th{text-align:left;font-weight:600;font-size:13px;color:var(--mut);border-bottom:1px solid var(--ink);padding:8px 10px 8px 0}
+td{padding:10px 10px 10px 0;border-bottom:1px solid var(--line);vertical-align:middle}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.better{color:var(--acc);font-weight:600}.worse{color:var(--neg);font-weight:600}
+svg{display:block;max-width:100%;height:auto}
+svg text{font-family:inherit}
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0}
+.finding{padding:18px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:70px 1fr;gap:16px;cursor:pointer}
+.finding:hover .ft{text-decoration:underline}
+.finding .r{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.finding .r small{display:block;font-size:12px;font-weight:400;color:var(--mut)}
+.finding .ft{font-weight:600}
+.combo{padding:18px 0;border-bottom:1px solid var(--line)}
+.combo .ft{font-weight:600;margin-bottom:6px}
+.combo table{max-width:520px}
+.combo td{padding:6px 10px 6px 0}
+.detail{border-top:1px solid var(--ink);margin-top:28px;padding-top:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+.advice{padding:24px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:48px 1fr;gap:16px}
+.advice .nr{font-size:34px;font-weight:700;line-height:1;color:var(--acc)}
+.advice .t{font-size:19px;font-weight:700;margin:0 0 4px}
+.advice ul{margin:6px 0 12px;padding-left:18px}
+.bar{height:6px;background:var(--soft);border-radius:3px;overflow:hidden;max-width:300px;margin:6px 0}
+.bar i{display:block;height:100%;background:var(--acc)}
+.note{font-size:13px;color:var(--mut);max-width:640px;margin-top:32px}
+.nudge{border-bottom:1px solid var(--line);padding:10px 0;font-size:15px}
+.check{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:2px 16px;max-width:760px}
+.check label{display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.check input{width:18px;height:18px;accent-color:var(--acc)}
+footer{height:80px}
+@media(max-width:720px){
+ h1{font-size:30px;margin-top:24px}h2{font-size:22px}.row{grid-template-columns:1fr;gap:6px}.two{grid-template-columns:1fr}.wrap{padding:0 16px}
+ header.top nav{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line);justify-content:space-around;padding:4px 0 calc(4px + env(safe-area-inset-bottom));z-index:6}
+ nav button{border-bottom:0;border-top:2px solid transparent;font-size:13px;padding:8px 6px}
+ nav button.on{border-top-color:var(--acc)}
+ footer{height:120px}
+ html,body{overflow-x:hidden}
+ .seg.sc{display:grid;grid-template-columns:repeat(10,1fr);gap:3px}.seg.sc button{min-width:0;padding:8px 0}
+ .dnav button.ghost{padding:7px 10px;font-size:14px}.dnav input{flex:1 1 150px;min-width:0}
+ .finding{grid-template-columns:68px 1fr;gap:10px}.finding .r{font-size:21px}
+ .demo{font-size:12px}
+}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap"><div class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#1E5E57"/><path d="M14 46 L27 33 L37 39 L50 20" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="14" cy="46" r="5" fill="#fff"/><circle cx="37" cy="39" r="5" fill="#fff"/><circle cx="50" cy="20" r="5" fill="#fff"/></svg>Spoor</div>
+<nav id="tabs">
+<button data-t="vandaag">Vandaag</button>
+<button data-t="overzicht">Overzicht</button>
+<button data-t="verbanden">Verbanden</button>
+<button data-t="advies">Advies</button>
+<button data-t="data">Instellingen</button>
+</nav></div></header>
+<div class="wrap demo" id="demo"></div>
+<main class="wrap" id="main"></main>
+<footer></footer>
+<script>
+/* ================= opslag ================= */
+const store=(()=>{const mem={};try{localStorage.setItem('_t','1');return{get:k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))}}catch(e){return{get:k=>mem[k]??null,set:(k,v)=>{mem[k]=v}}}})();
+const KEYS=['spoor_entries','spoor_custom','spoor_hidden','spoor_exp','spoor_settings','spoor_demo','spoor_started','spoor_license'];
+
+/* ================= variabelen ================= */
+const BASE=[
+{id:'slaap_uren',name:'Slaap',unit:'uur',type:'num',group:'Slaap',dir:1,ctrl:false,hint:'afgelopen nacht',step:.25},
+{id:'slaap_kwal',name:'Slaapkwaliteit',unit:'/10',type:'scale',group:'Slaap',dir:1,ctrl:false,hint:'afgelopen nacht'},
+{id:'bedtijd',name:'Bedtijd',unit:'',type:'time',group:'Slaap',dir:0,ctrl:true,hint:'gisteravond'},
+{id:'cafeine',name:'Cafeïne',unit:'koppen',type:'num',group:'Voeding en middelen',dir:0,ctrl:true,fam:'caf',step:1},
+{id:'cafeine_laatst',name:'Laatste cafeïne',unit:'',type:'time',group:'Voeding en middelen',dir:0,ctrl:true,fam:'caf',hint:'tijdstip'},
+{id:'alcohol',name:'Alcohol',unit:'glazen',type:'num',group:'Voeding en middelen',dir:0,ctrl:true,step:1},
+{id:'water',name:'Water',unit:'liter',type:'num',group:'Voeding en middelen',dir:0,ctrl:true,step:.1},
+{id:'stappen',name:'Stappen',unit:'stappen',type:'num',group:'Beweging en scherm',dir:0,ctrl:true,step:100},
+{id:'sport',name:'Sport',unit:'min',type:'num',group:'Beweging en scherm',dir:0,ctrl:true,step:5},
+{id:'scherm_avond',name:'Schermtijd na 21u',unit:'min',type:'num',group:'Beweging en scherm',dir:0,ctrl:true,step:5},
+{id:'stress',name:'Stress',unit:'/10',type:'scale',group:'Hoofd',dir:-1,ctrl:false},
+{id:'stemming',name:'Stemming',unit:'/10',type:'scale',group:'Hoofd',dir:1,ctrl:false},
+{id:'energie',name:'Energie',unit:'/10',type:'scale',group:'Hoofd',dir:1,ctrl:false},
+{id:'hoofdpijn',name:'Hoofdpijn',unit:'',type:'bool',group:'Lichaam',dir:-1,ctrl:false},
+{id:'rusthartslag',name:'Rusthartslag',unit:'bpm',type:'num',group:'Lichaam',dir:-1,ctrl:false,step:1,hint:'van je horloge of zelf gemeten'},
+{id:'hrv',name:'HRV',unit:'ms',type:'num',group:'Lichaam',dir:1,ctrl:false,step:1,hint:'hartslagvariabiliteit'}
+];
+const DERIVED=[{id:'cafeine_na16',name:'Cafeïne na 16u',unit:'',type:'bool',group:'Voeding en middelen',dir:0,ctrl:true,fam:'caf',needs:['cafeine','cafeine_laatst'],
+ calc:e=>e.cafeine==null?null:(e.cafeine===0?0:(e.cafeine_laatst==null?null:(e.cafeine_laatst>=16?1:0)))}];
+const hidden=()=>new Set(store.get('spoor_hidden')||[]);
+const customVars=()=>store.get('spoor_custom')||[];
+function logVars(){const h=hidden();return BASE.filter(v=>!h.has(v.id)).concat(customVars())}
+function allVars(){const h=hidden(),b=BASE.filter(v=>!h.has(v.id));const i=b.findIndex(v=>v.id==='cafeine_laatst');
+ const d=DERIVED.filter(v=>v.needs.every(n=>!h.has(n)));if(i>=0)b.splice(i+1,0,...d);return b.concat(customVars())}
+const byId=id=>allVars().find(v=>v.id===id)||BASE.concat(DERIVED,customVars()).find(v=>v.id===id);
+const settings=()=>Object.assign({reminder:'21:00'},store.get('spoor_settings')||{});
+
+/* ================= Premium (licentiesleutel via Lemon Squeezy) ================= */
+const BUY_URL='https://REPLACE-MET-LEMON-SQUEEZY-CHECKOUTLINK';
+const license=()=>store.get('spoor_license');
+function isPremium(){const l=license();return!!(l&&l.status==='valid')}
+async function activateLicense(key){
+ try{
+  const resp=await fetch('https://api.lemonsqueezy.com/v1/licenses/activate',{method:'POST',headers:{'Accept':'application/json','Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({license_key:key,instance_name:'Spoor-'+Math.random().toString(36).slice(2,8)})});
+  const data=await resp.json();
+  if(data.activated){store.set('spoor_license',{key,instanceId:data.instance?data.instance.id:null,status:'valid',checkedAt:Date.now()});return{ok:true}}
+  return{ok:false,error:(data.error||'Deze code is niet geldig.')}
+ }catch(e){return{ok:false,error:'Geen internetverbinding. Probeer het later opnieuw.'}}
+}
+async function revalidateLicense(){
+ const l=license();if(!l||!l.instanceId)return;
+ try{
+  const resp=await fetch('https://api.lemonsqueezy.com/v1/licenses/validate',{method:'POST',headers:{'Accept':'application/json','Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({license_key:l.key,instance_id:l.instanceId})});
+  const data=await resp.json();
+  if(data.valid===false){l.status='invalid';store.set('spoor_license',l)}else{l.checkedAt=Date.now();store.set('spoor_license',l)}
+ }catch(e){/* geen internet: status niet wijzigen */}
+}
+async function submitLicense(){
+ const inp=document.getElementById('lkey'),msg=document.getElementById('lkeyMsg');if(!inp)return;
+ const key=inp.value.trim();if(!key){msg.textContent='Vul een code in.';return}
+ msg.textContent='Code controleren...';
+ const r=await activateLicense(key);
+ msg.textContent=r.ok?'Gelukt! Premium is actief.':r.error;
+ if(r.ok)render()
+}
+function deactivateLicense(){if(!confirm('Premium loskoppelen van dit toestel?'))return;store.set('spoor_license',null);render()}
+if(license()&&Date.now()-(license().checkedAt||0)>3*864e5)revalidateLicense();
+
+/* ================= data ================= */
+let E=store.get('spoor_entries')||{},CACHE=null;
+function saveE(){store.set('spoor_entries',E);CACHE=null}
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const parse=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)};
+const addD=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return iso(d)};
+const today=()=>iso(new Date());
+function dates(){const k=Object.keys(E).sort();if(!k.length)return[];const out=[];let d=k[0];const last=k[k.length-1];while(d<=last){out.push(d);d=addD(d,1)}return out}
+function val(date,v){const e=E[date];if(!e)return null;if(v.calc)return v.calc(e);const x=e[v.id];return x==null?null:x}
+
+/* ================= voorbeelddata ================= */
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function genDemo(){
+ const R=mulberry(11),N=()=>{let u=0;while(!u)u=R();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*R())};
+ const cl=(x,a,b)=>Math.max(a,Math.min(b,x)),q=(x,s)=>Math.round(x/s)*s;
+ const out={},now=new Date(),H=[{bed:23.2,cafLate:0,alc:0,scr:70,steps:8000,water:1.8,sport:0},{bed:23.2,cafLate:0,alc:0,scr:70,steps:8000,water:1.8,sport:0}];
+ for(let k=89;k>=0;k--){
+  const prev=H[H.length-1],prev2=H[H.length-2];
+  const d=new Date(now);d.setDate(d.getDate()-k);const wd=d.getDay(),we=wd===0||wd===6,fs=wd===5||wd===6;
+  const stress=cl(Math.round(5+(we?-1.6:.7)+N()*1.6),1,10);
+  const slaap=q(cl(7.9-.5*prev.cafLate-.3*prev.alc-.75*Math.max(0,prev.bed-23)+N()*.45,4,10),.25);
+  const kwal=cl(Math.round(7.5-1.7*prev.cafLate-.55*prev.alc-.006*(prev.scr-60)+N()*.9),1,10);
+  const hrv=Math.round(57-4.5*prev.alc+2.3*(kwal-7)+(prev2.sport>0?4:0)+N()*4.5);
+  const rhr=Math.round(59+1.9*prev.alc-.4*(kwal-7)+N()*1.8);
+  const caf=cl(Math.round(1.5+.25*(stress-5)+(slaap<6.5?1:0)+N()*.7),0,5);
+  const cafT=caf===0?null:q(cl(11+1.1*caf+.5*(stress-5)+N()*2.2,7.5,20.5),.25);
+  const cafLate=caf>0&&cafT>=16?1:0;
+  const alc=fs?Math.max(0,Math.round(1.4+N()*1.3)):(R()<.1?1:0);
+  const steps=q(cl(8200+(we?1500:0)-250*(stress-5)+N()*2600,1500,18000),10);
+  const sport=R()<.4?q(cl(40+N()*15,15,90),5):0;
+  const water=Math.round(cl(1.6+.00005*(steps-8000)+N()*.4,.6,3.2)*10)/10;
+  const scr=q(cl(70+12*(stress-5)+(we?20:0)+N()*35,0,240),5);
+  const en=cl(Math.round(5.6+.7*(slaap-7.3)+.35*(kwal-6.5)-.2*(stress-5)+(sport>0?.5:0)-(slaap<7&&stress>=6?1.6:0)+N()*.8),1,10);
+  const mood=cl(Math.round(6+.35*(en-6)+.00013*(steps-8000)-.3*(stress-5)+N()*.9),1,10);
+  const hp=R()<(.03+.03*Math.max(0,stress-4)+(water<1.4?.06:0)+(prev.alc>0&&prev.water<=1.7?.8:0))?1:0;
+  const bed=q(23+.006*(scr-70)+(fs?.8:0)+.08*(stress-5)+N()*.35,.25);
+  if(R()>.04)out[iso(d)]={slaap_uren:slaap,slaap_kwal:kwal,bedtijd:prev.bed,cafeine:caf,cafeine_laatst:cafT,alcohol:alc,water,stappen:steps,sport,scherm_avond:scr,stress,stemming:mood,energie:en,hoofdpijn:hp,rusthartslag:rhr,hrv};
+  H.push({bed,cafLate,alc,scr,steps,water,sport});
+ }
+ Object.values(out).forEach(e=>{if(e.cafeine_laatst==null)delete e.cafeine_laatst});
+ return out;
+}
+if(!Object.keys(E).length&&!store.get('spoor_started')){E=genDemo();store.set('spoor_demo',true);saveE()}
+
+/* ================= formattering ================= */
+const nl=(x,d=1)=>x==null||isNaN(x)?'–':x.toLocaleString('nl-BE',{minimumFractionDigits:0,maximumFractionDigits:d});
+const fT=h=>{if(h==null)return'–';let m=Math.round(h*60/5)*5;m=((m%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};
+const lc=s=>/^[A-Z]{2}/.test(s)?s:s[0].toLowerCase()+s.slice(1);
+const uc=s=>s[0].toUpperCase()+s.slice(1);
+function fv(v,x){if(x==null)return'–';if(v.type==='time')return fT(x);if(v.type==='bool')return nl(x*100,0)+'%';
+ const d=Math.abs(x)>=20?0:1;const n=v.id==='stappen'?nl(Math.round(x/100)*100,0):nl(x,d);
+ if(v.unit==='/10')return n+'/10';return v.unit?n+' '+v.unit:n}
+const mean=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:null;
+const sd=a=>{const m=mean(a);return a.length>1?Math.sqrt(a.reduce((s,x)=>s+(x-m)**2,0)/(a.length-1)):0};
+const median=a=>{const s=[...a].sort((x,y)=>x-y),n=s.length;return n?(n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2):null};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ================= statistiek ================= */
+function ranks(a){const ix=a.map((v,i)=>[v,i]).sort((x,y)=>x[0]-y[0]),r=new Array(a.length);let i=0;while(i<ix.length){let j=i;while(j+1<ix.length&&ix[j+1][0]===ix[i][0])j++;const av=(i+j)/2+1;for(let k=i;k<=j;k++)r[ix[k][1]]=av;i=j+1}return r}
+function pearson(x,y){const n=x.length,mx=mean(x),my=mean(y);let a=0,b=0,c=0;for(let i=0;i<n;i++){const dx=x[i]-mx,dy=y[i]-my;a+=dx*dy;b+=dx*dx;c+=dy*dy}return b===0||c===0?null:a/Math.sqrt(b*c)}
+const spearman=(x,y)=>pearson(ranks(x),ranks(y));
+function gammaln(x){const c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,.1208650973866179e-2,-.5395239384953e-5];let y=x,t=x+5.5;t-=(x+.5)*Math.log(t);let s=1.000000000190015;for(let j=0;j<6;j++)s+=c[j]/++y;return-t+Math.log(2.5066282746310005*s/x)}
+function betacf(a,b,x){const F=1e-300;let qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;if(Math.abs(d)<F)d=F;d=1/d;let h=d;for(let m=1;m<=300;m++){const m2=2*m;let aa=m*(b-m)*x/((qam+m2)*(a+m2));d=1+aa*d;if(Math.abs(d)<F)d=F;c=1+aa/c;if(Math.abs(c)<F)c=F;d=1/d;h*=d*c;aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));d=1+aa*d;if(Math.abs(d)<F)d=F;c=1+aa/c;if(Math.abs(c)<F)c=F;d=1/d;const del=d*c;h*=del;if(Math.abs(del-1)<3e-12)break}return h}
+function ibeta(a,b,x){if(x<=0)return 0;if(x>=1)return 1;const bt=Math.exp(gammaln(a+b)-gammaln(a)-gammaln(b)+a*Math.log(x)+b*Math.log(1-x));return x<(a+1)/(a+b+2)?bt*betacf(a,b,x)/a:1-bt*betacf(b,a,1-x)/b}
+function pval(r,n){if(Math.abs(r)>=.999999)return 0;const df=n-2,t=r*Math.sqrt(df/(1-r*r));return ibeta(df/2,.5,df/(df+t*t))}
+function phi(z){const t=1/(1+.2316419*Math.abs(z)),d=.3989423*Math.exp(-z*z/2),p=d*t*(.3193815+t*(-.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));return z>0?1-p:p}
+function mannWhitney(a,b){const all=a.concat(b),r=ranks(all),n1=a.length,n2=b.length;let R1=0;for(let i=0;i<n1;i++)R1+=r[i];const U=R1-n1*(n1+1)/2,mu=n1*n2/2,s=Math.sqrt(n1*n2*(n1+n2+1)/12);if(!s)return 1;const z=(U-mu)/s;return 2*(1-phi(Math.abs(z)))}
+function bh(list){const s=[...list].sort((a,b)=>a.p-b.p),m=s.length;let mn=1;for(let k=m-1;k>=0;k--){mn=Math.min(mn,s[k].p*m/(k+1));s[k].q=mn}}
+const LAGS=[0,1,2,3];
+let WD={};
+function wdMeans(){WD={};const D=dates();allVars().forEach(v=>{const g=[[],[],[],[],[],[],[]];D.forEach(d=>{const x=val(d,v);if(x!=null)g[parse(d).getDay()].push(x)});const all=mean(g.flat());WD[v.id]=g.map(a=>a.length>=3?mean(a):all)})}
+function pairs(X,Y,lag){const D=dates(),xs=[],ys=[],rx=[],ry=[];for(let i=0;i+lag<D.length;i++){const x=val(D[i],X),y=val(D[i+lag],Y);if(x!=null&&y!=null){xs.push(x);ys.push(y);if(WD[X.id]){rx.push(x-WD[X.id][parse(D[i]).getDay()]);ry.push(y-WD[Y.id][parse(D[i+lag]).getDay()])}}}return{xs,ys,rx,ry}}
+
+function analyse(){
+ if(CACHE)return CACHE;
+ wdMeans();const V=allVars(),res=[];
+ for(const lag of LAGS)V.forEach((X,i)=>V.forEach((Y,j)=>{
+  if(X===Y||(X.fam&&X.fam===Y.fam))return;if(lag===0&&i>j)return;
+  const P=pairs(X,Y,lag);if(P.xs.length<14)return;const r=spearman(P.xs,P.ys);if(r==null)return;
+  let a=X,b=Y;if(lag===0&&!X.ctrl&&Y.ctrl){a=Y;b=X}
+  res.push({X:a,Y:b,lag,r,n:P.xs.length,p:pval(r,P.xs.length),radj:pearson(P.rx,P.ry)??0})}));
+ bh(res);CACHE={res,combos:null};return CACHE}
+function findings(){
+ const ok=analyse().res.filter(r=>r.lag<2?(r.q<.05&&Math.abs(r.r)>=.2&&Math.abs(r.radj)>=.15):(r.q<.02&&Math.abs(r.r)>=.3&&Math.abs(r.radj)>=.25)),best={};
+ ok.forEach(f=>{const k=f.X.id+'|'+f.Y.id+'|'+(f.lag===0?0:'d');if(!best[k]||Math.abs(f.r)>Math.abs(best[k].r))best[k]=f});
+ return Object.values(best).sort((a,b)=>Math.abs(b.r)-Math.abs(a.r))}
+const strength=r=>{const a=Math.abs(r);return a<.3?'zwak':a<.5?'matig':'sterk'};
+function lagText(Y,lag,X){if(lag===0)return Y.group==='Slaap'?(X&&X.group==='Slaap'?'dezelfde nacht':'de nacht ervoor'):'dezelfde dag';
+ if(lag===1)return Y.group==='Slaap'?'de nacht erna':'de dag erna';return Y.group==='Slaap'?`${lag} nachten later`:`${lag} dagen later`}
+
+function splitter(X,xs){
+ const N=lc(X.name);
+ if(X.type==='bool')return{hi:x=>x===1,lo:x=>x===0,hiL:`Op dagen met ${N}`,loL:'op dagen zonder',hiS:X.name,loS:'geen '+N};
+ const mn=Math.min(...xs);
+ if(mn===0&&xs.filter(x=>x===0).length/xs.length>=.3)return{hi:x=>x>0,lo:x=>x===0,hiL:`Op dagen met ${N}`,loL:'op dagen zonder',thr:0,hiS:X.name,loS:'geen '+N};
+ let t=median(xs);if(!xs.some(x=>x>t))t=Math.max(...xs.filter(x=>x<t));
+ if(X.type==='time')return{hi:x=>x>t,lo:x=>x<=t,hiL:`Bij ${N} na ${fT(t)}`,loL:`bij ${fT(t)} of vroeger`,thr:t,hiS:`${X.name} na ${fT(t)}`,loS:`${X.name} om ${fT(t)} of vroeger`};
+ return{hi:x=>x>t,lo:x=>x<=t,hiL:`Bij ${N} boven ${fv(X,t)}`,loL:`bij ${fv(X,t)} of minder`,thr:t,hiS:`${X.name} boven ${fv(X,t)}`,loS:`${X.name} ${fv(X,t)} of minder`}}
+function effect(f){
+ const{xs,ys}=pairs(f.X,f.Y,f.lag),sp=splitter(f.X,xs),H=[],L=[],HX=[],LX=[];
+ xs.forEach((x,i)=>{if(sp.hi(x)){H.push(ys[i]);HX.push(x)}else if(sp.lo(x)){L.push(ys[i]);LX.push(x)}});
+ const mh=mean(H),ml=mean(L),Y=f.Y,lt=lagText(Y,f.lag,f.X);
+ let txt;if(Y.type==='bool')txt=`${sp.hiL} had je ${lc(Y.name)} ${lt} op ${nl(mh*100,0)}% van de dagen, ${sp.loL} op ${nl(ml*100,0)}%.`;
+ else txt=`${sp.hiL} was je ${lc(Y.name)} ${lt} gemiddeld ${fv(Y,mh)}, ${sp.loL} ${fv(Y,ml)}.`;
+ return{sp,mh,ml,nh:H.length,nlo:L.length,mxh:mean(HX),mxl:mean(LX),txt,xs,ys}}
+
+/* combinaties van twee gewoonten */
+function combos(){
+ const C=analyse();if(C.combos)return C.combos;
+ const D=dates(),V=allVars(),G=V.filter(v=>v.ctrl),O=V.filter(v=>!v.ctrl&&v.dir!==0),out=[];
+ const col=v=>D.map(d=>val(d,v)),F=findings();
+ const famHit=(v,Y,lag)=>v.fam&&F.some(f=>f.X!==v&&f.X.fam===v.fam&&f.Y===Y&&(f.lag===lag||(lag>0&&f.lag>0))&&Math.abs(f.r)>=.3);
+ G.forEach((A,i)=>G.slice(i+1).forEach(B=>{if(A.fam&&A.fam===B.fam)return;
+  const ca=col(A),cb=col(B),spA=splitter(A,ca.filter(x=>x!=null)),spB=splitter(B,cb.filter(x=>x!=null));
+  O.forEach(Y=>[0,1].forEach(lag=>{if(lag===0&&Y.group!=='Hoofd')return;if(famHit(A,Y,lag)||famHit(B,Y,lag))return;
+   const g={hh:[],hl:[],lh:[],ll:[]},gr={hh:[],hl:[],lh:[],ll:[]};
+   for(let k=0;k+lag<D.length;k++){const a=ca[k],b=cb[k],y=val(D[k+lag],Y);if(a==null||b==null||y==null)continue;
+    const ka=spA.hi(a)?'h':spA.lo(a)?'l':null,kb=spB.hi(b)?'h':spB.lo(b)?'l':null;if(!ka||!kb)continue;
+    g[ka+kb].push(y);gr[ka+kb].push(y-WD[Y.id][parse(D[k+lag]).getDay()])}
+   if(Object.values(g).some(a=>a.length<6))return;
+   const m=Object.fromEntries(Object.entries(g).map(([k,a])=>[k,mean(a)]));
+   const badA=((m.hh+m.hl)/2-(m.lh+m.ll)/2)*Y.dir<0?'h':'l',badB=((m.hh+m.lh)/2-(m.hl+m.ll)/2)*Y.dir<0?'h':'l';
+   const gA=badA==='h'?'l':'h',gB=badB==='h'?'l':'h',kb=badA+badB,kn=gA+gB,ka=badA+gB,kB=gA+badB;
+   if(g[kb].length<8||g[kn].length<8)return;
+   // interactietoets (2x2, na wegfilteren weekpatroon): is samen slechter dan de som van apart?
+   const rm=k=>mean(gr[k]),inter=(rm(kb)-rm(ka))-(rm(kB)-rm(kn));
+   if(inter*Y.dir>=0)return;
+   let ss=0,N=0;for(const k in gr){const mk=rm(k);gr[k].forEach(y=>{ss+=(y-mk)**2});N+=gr[k].length}
+   const df=N-4,s2=ss/df,se=Math.sqrt(s2*(1/gr.hh.length+1/gr.hl.length+1/gr.lh.length+1/gr.ll.length));if(!se)return;
+   const t=inter/se,p=ibeta(df/2,.5,df/(df+t*t)),sY=sd(D.map(d=>val(d,Y)).filter(x=>x!=null))||1;
+   if((m[kb]-m[kn])*Y.dir>=0)return;
+   out.push({A,B,Y,lag,labA:badA==='h'?spA.hiS:spA.loS,labB:badB==='h'?spB.hiS:spB.loS,mb:m[kb],mn:m[kn],ma:m[ka],mB:m[kB],nb:g[kb].length,nn:g[kn].length,na:g[ka].length,nB:g[kB].length,p,score:Math.abs(inter)/sY})}))}));
+ bh(out);out.forEach(c=>c.sure=c.q<.1);C.combos=out.filter(c=>c.sure||c.p<.005).sort((a,b)=>a.p-b.p);
+ const seen=new Set();C.combos=C.combos.filter(c=>{const k=c.A.id+c.B.id+c.Y.id;if(seen.has(k))return false;seen.add(k);return true});
+ return C.combos}
+
+/* ================= grafieken ================= */
+function roll(vals,w=7){return vals.map((_,i)=>{const s=vals.slice(Math.max(0,i-w+1),i+1).filter(x=>x!=null);return s.length>=3?mean(s):null})}
+function ext(a){const v=a.filter(x=>x!=null);if(!v.length)return[0,1];let lo=Math.min(...v),hi=Math.max(...v);if(lo===hi){lo-=1;hi+=1}const p=(hi-lo)*.08;return[lo-p,hi+p]}
+function path(vals,X,Y){let d='',on=false;vals.forEach((v,i)=>{if(v==null){on=false;return}d+=(on?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1);on=true});return d}
+const tick=(v,x)=>v.type==='time'?fT(x):v.type==='bool'?nl(x*100,0)+'%':nl(x,v.id==='stappen'?0:1);
+function tsChart(A,B){
+ const D=dates().slice(-90),W=920,H=280,l=54,r=B?54:16,t=16,b=30;
+ const va=D.map(d=>val(d,A)),vb=B?D.map(d=>val(d,B)):null;
+ const X=i=>l+(W-l-r)*i/Math.max(1,D.length-1);
+ const[a0,a1]=A.type==='bool'?[-.05,1.05]:ext(va),YA=v=>t+(H-t-b)*(1-(v-a0)/(a1-a0));
+ let s=`<svg viewBox="0 0 ${W} ${H}" role="img">`;
+ for(let k=0;k<=4;k++){const v=a0+(a1-a0)*k/4,y=YA(v);s+=`<line x1="${l}" x2="${W-r}" y1="${y}" y2="${y}" stroke="#DCD8CF"/><text x="${l-8}" y="${y+4}" font-size="11" text-anchor="end" fill="#1E5E57">${esc(tick(A,v))}</text>`}
+ if(B){const[b0,b1]=B.type==='bool'?[-.05,1.05]:ext(vb),YB=v=>t+(H-t-b)*(1-(v-b0)/(b1-b0));for(let k=0;k<=4;k++){const v=b0+(b1-b0)*k/4;s+=`<text x="${W-r+8}" y="${YB(v)+4}" font-size="11" fill="#B4532A">${esc(tick(B,v))}</text>`}
+  vb.forEach((v,i)=>{if(v!=null)s+=`<circle cx="${X(i)}" cy="${YB(v)}" r="2" fill="#B4532A" opacity=".3"/>`});
+  s+=`<path d="${path(roll(vb),X,YB)}" fill="none" stroke="#B4532A" stroke-width="2"/>`}
+ va.forEach((v,i)=>{if(v!=null)s+=`<circle cx="${X(i)}" cy="${YA(v)}" r="2.4" fill="#1E5E57" opacity=".35"/>`});
+ s+=`<path d="${path(roll(va),X,YA)}" fill="none" stroke="#1E5E57" stroke-width="2.4"/>`;
+ D.forEach((d,i)=>{if(d.endsWith('-01'))s+=`<line x1="${X(i)}" x2="${X(i)}" y1="${H-b}" y2="${H-b+5}" stroke="#5E6662"/><text x="${X(i)}" y="${H-8}" font-size="11" fill="#5E6662" text-anchor="middle">${parse(d).toLocaleDateString('nl-BE',{month:'short'})}</text>`});
+ return s+`<line x1="${l}" x2="${W-r}" y1="${H-b}" y2="${H-b}" stroke="#1A1F1D"/></svg>`}
+function spark(v){const D=dates().slice(-60),vals=roll(D.map(d=>val(d,v))),W=140,H=30;if(!vals.some(x=>x!=null))return'';const[a,b]=ext(vals);return`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><path d="${path(vals,i=>2+(W-4)*i/Math.max(1,D.length-1),x=>H-3-(H-6)*(x-a)/(b-a))}" fill="none" stroke="#1E5E57" stroke-width="1.6"/></svg>`}
+function weekChart(A){
+ const names=['ma','di','wo','do','vr','za','zo'],g=[[],[],[],[],[],[],[]];dates().forEach(d=>{const v=val(d,A);if(v!=null)g[(parse(d).getDay()+6)%7].push(v)});
+ const m=g.map(mean),vv=m.filter(x=>x!=null);if(!vv.length)return'';const W=440,H=200,b=26,t=20;let lo=Math.min(...vv),hi=Math.max(...vv);const pad=(hi-lo)*.6||1;lo=A.type==='bool'?0:Math.max(0,lo-pad);
+ const bw=(W-20)/7,mx=Math.max(...vv),mi=Math.min(...vv);let s=`<svg viewBox="0 0 ${W} ${H}">`;
+ m.forEach((x,i)=>{if(x==null)return;const h=(H-b-t)*(x-lo)/(hi-lo||1)+4,xx=10+i*bw+8;s+=`<rect x="${xx}" y="${H-b-h}" width="${bw-16}" height="${h}" fill="#1E5E57" opacity="${x===mx||x===mi?1:.45}"/><text x="${xx+(bw-16)/2}" y="${H-b-h-5}" font-size="11" text-anchor="middle" fill="#1A1F1D">${esc(fv(A,x).replace(/ (uur|koppen|glazen|liter|stappen|min|bpm|ms)$/,''))}</text><text x="${xx+(bw-16)/2}" y="${H-8}" font-size="12" text-anchor="middle" fill="#5E6662">${names[i]}</text>`});
+ return s+`<line x1="10" x2="${W-10}" y1="${H-b}" y2="${H-b}" stroke="#1A1F1D"/></svg>`}
+function lagChart(X,Y){
+ const res=analyse().res,rs=LAGS.map(l=>res.find(r=>r.lag===l&&((r.X===X&&r.Y===Y)||(l===0&&r.X===Y&&r.Y===X))));
+ const W=440,H=160,b=28,mid=(H-b)/2+6,bw=W/LAGS.length;let s=`<svg viewBox="0 0 ${W} ${H}"><line x1="0" x2="${W}" y1="${mid}" y2="${mid}" stroke="#1A1F1D"/>`;
+ rs.forEach((r,i)=>{const x=i*bw+bw/2;if(!r){s+=`<text x="${x}" y="${mid-6}" font-size="11" text-anchor="middle" fill="#5E6662">–</text>`}else{const h=Math.abs(r.r)*(mid-14),y=r.r>0?mid-h:mid;s+=`<rect x="${x-18}" y="${y}" width="36" height="${h}" fill="${r.r>0?'#1E5E57':'#B4532A'}" opacity="${r.q<.05?1:.3}"/><text x="${x}" y="${r.r>0?y-4:y+h+12}" font-size="11" text-anchor="middle">${nl(r.r,2)}</text>`}
+  s+=`<text x="${x}" y="${H-6}" font-size="12" text-anchor="middle" fill="#5E6662">${i===0?'zelfde dag':'+'+i+' dag'+(i>1?'en':'')}</text>`});
+ return s+'</svg>'}
+function scatter(f,e){
+ const W=440,H=300,l=50,r=12,t=12,b=40,jit=v=>v.type==='scale'||v.type==='bool'||v.unit==='koppen'||v.unit==='glazen';
+ const[x0,x1]=ext(e.xs),[y0,y1]=ext(e.ys),X=v=>l+(W-l-r)*(v-x0)/(x1-x0),Y=v=>t+(H-t-b)*(1-(v-y0)/(y1-y0));
+ const R=mulberry(3);let s=`<svg viewBox="0 0 ${W} ${H}">`;
+ for(let k=0;k<=3;k++){const v=y0+(y1-y0)*k/3;s+=`<line x1="${l}" x2="${W-r}" y1="${Y(v)}" y2="${Y(v)}" stroke="#DCD8CF"/><text x="${l-6}" y="${Y(v)+4}" font-size="11" text-anchor="end" fill="#5E6662">${esc(f.Y.type==='time'?fT(v):f.Y.type==='bool'?(v<.5?'nee':'ja'):nl(v,1))}</text>`}
+ for(let k=0;k<=3;k++){const v=x0+(x1-x0)*k/3;s+=`<text x="${X(v)}" y="${H-22}" font-size="11" text-anchor="middle" fill="#5E6662">${esc(f.X.type==='time'?fT(v):f.X.type==='bool'?(v<.5?'nee':'ja'):nl(v,f.X.id==='stappen'?0:1))}</text>`}
+ e.xs.forEach((x,i)=>{const jx=jit(f.X)?(R()-.5)*(x1-x0)*.05:0,jy=jit(f.Y)?(R()-.5)*(y1-y0)*.05:0;s+=`<circle cx="${X(x+jx)}" cy="${Y(e.ys[i]+jy)}" r="3.2" fill="#1E5E57" opacity=".45"/>`});
+ const mx=mean(e.xs),my=mean(e.ys);let a=0,c=0;e.xs.forEach((x,i)=>{a+=(x-mx)*(e.ys[i]-my);c+=(x-mx)**2});const sl=c?a/c:0,ic=my-sl*mx;
+ const xa=Math.min(...e.xs),xb=Math.max(...e.xs);s+=`<line x1="${X(xa)}" y1="${Y(ic+sl*xa)}" x2="${X(xb)}" y2="${Y(ic+sl*xb)}" stroke="#1A1F1D" stroke-width="1.6"/>`;
+ s+=`<text x="${(l+W-r)/2}" y="${H-4}" font-size="12" text-anchor="middle" fill="#1A1F1D">${esc(f.X.name)}</text>`;
+ return s+`<line x1="${l}" x2="${W-r}" y1="${H-b}" y2="${H-b}" stroke="#1A1F1D"/></svg>`}
+function heatmap(lag){
+ const V=allVars(),n=V.length,c=30,L=150,T=130,W=L+n*c+10,H=T+n*c+10,M={};
+ analyse().res.filter(r=>r.lag===lag).forEach(r=>{M[r.X.id+'|'+r.Y.id]=r;if(lag===0)M[r.Y.id+'|'+r.X.id]=r});
+ let s=`<svg viewBox="0 0 ${W} ${H}" style="max-width:${W}px;min-width:${Math.min(W,620)}px">`;
+ V.forEach((v,i)=>{s+=`<text x="${L-8}" y="${T+i*c+c/2+4}" font-size="12" text-anchor="end" fill="#1A1F1D">${esc(v.name)}</text><text transform="translate(${L+i*c+c/2+4},${T-8}) rotate(-55)" font-size="12" fill="#1A1F1D">${esc(v.name)}</text>`});
+ V.forEach((a,i)=>V.forEach((b,j)=>{const x=L+j*c,y=T+i*c,r=M[a.id+'|'+b.id];
+  if(!r){s+=`<rect x="${x}" y="${y}" width="${c-2}" height="${c-2}" fill="${i===j?'#1A1F1D':'#EDEAE2'}" opacity="${i===j?.08:.6}"/>`;return}
+  const sig=r.q<.05,col=r.r>0?'30,94,87':'180,83,42',al=Math.min(1,Math.abs(r.r)*1.6);
+  s+=`<rect x="${x}" y="${y}" width="${c-2}" height="${c-2}" fill="rgba(${col},${al.toFixed(2)})" style="cursor:pointer" data-cell="${r.X.id}|${r.Y.id}|${lag}"><title>${esc(a.name)} / ${esc(b.name)}: r = ${nl(r.r,2)}</title></rect>`;
+  if(sig)s+=`<text x="${x+(c-2)/2}" y="${y+c/2+3}" font-size="10" text-anchor="middle" fill="${al>.5?'#fff':'#1A1F1D'}" pointer-events="none">${nl(r.r*100,0)}</text>`}));
+ return s+'</svg>'}
+
+/* ================= navigatie ================= */
+let TAB=location.hash.slice(1)||'vandaag',CUR=today(),SEL=null;
+function go(t){TAB=t;history.replaceState(null,'','#'+t);render();scrollTo(0,0)}
+document.getElementById('tabs').onclick=e=>{const b=e.target.closest('button');if(b)go(b.dataset.t)};
+function demoBar(){const el=document.getElementById('demo');el.innerHTML=store.get('spoor_demo')?`Je bekijkt voorbeelddata van 90 dagen. <button class="link" onclick="startOwn()">Wis en begin met je eigen gegevens</button>`:''}
+function startOwn(){if(!confirm('Alle gegevens wissen en opnieuw beginnen?'))return;E={};store.set('spoor_demo',false);store.set('spoor_started',true);store.set('spoor_exp',[]);saveE();CUR=today();go('vandaag')}
+function render(){
+ document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===TAB));demoBar();
+ const m=document.getElementById('main');
+ let nudge='';if(TAB!=='vandaag'&&!store.get('spoor_demo')&&!E[today()])nudge=`<div class="nudge">Je hebt vandaag nog niets ingevuld. <button class="link" onclick="CUR=today();go('vandaag')">Nu invullen</button></div>`;
+ m.innerHTML=nudge+({vandaag:vVandaag,overzicht:vOverzicht,verbanden:vVerbanden,advies:vAdvies,data:vData}[TAB]||vVandaag)();
+ if(TAB==='overzicht')bindOverzicht();if(TAB==='verbanden')bindVerbanden();if(TAB==='vandaag')bindVandaag()}
+
+/* ================= Vandaag ================= */
+function vVandaag(){
+ const d=parse(CUR),e=E[CUR]||{},groups={},LV=logVars();LV.forEach(v=>(groups[v.group]=groups[v.group]||[]).push(v));
+ const filled=LV.filter(v=>e[v.id]!=null).length;
+ let s=`<h1>${uc(d.toLocaleDateString('nl-BE',{weekday:'long',day:'numeric',month:'long'}))}</h1>
+ <div class="dnav"><button class="ghost" data-d="-1">Vorige</button><button class="ghost" data-d="1" ${CUR>=today()?'disabled style="opacity:.4"':''}>Volgende</button><input type="date" id="dpick" value="${CUR}" max="${today()}"><span class="saved" id="saved">${filled} van ${LV.length} ingevuld</span></div>
+ <p class="mut small">Alles wordt meteen bewaard. Vul in wat je weet, lege velden zijn geen probleem. Tik een gekozen score nog eens aan om hem te wissen.</p>`;
+ for(const g in groups){s+=`<h3>${esc(g)}</h3>`;groups[g].forEach(v=>{const x=e[v.id];let inp;
+  if(v.type==='scale')inp=`<div class="seg sc">${[1,2,3,4,5,6,7,8,9,10].map(k=>`<button data-v="${v.id}" data-x="${k}" class="${x===k?'on':''}">${k}</button>`).join('')}</div>`;
+  else if(v.type==='bool')inp=`<div class="seg"><button data-v="${v.id}" data-x="1" class="${x===1?'on':''}">Ja</button><button data-v="${v.id}" data-x="0" class="${x===0?'on':''}">Nee</button></div>`;
+  else if(v.type==='time')inp=`<input type="time" data-in="${v.id}" value="${x==null?'':fT(x)}">`;
+  else inp=`<input type="number" inputmode="decimal" step="${v.step||'any'}" data-in="${v.id}" value="${x==null?'':x}" style="width:140px"> <span class="mut">${esc(v.unit||'')}</span>`;
+  s+=`<div class="row"><div class="lab">${esc(v.name)}${v.hint?`<span>${esc(v.hint)}</span>`:''}</div><div>${inp}</div></div>`})}
+ return s}
+function setVal(id,x){E[CUR]=E[CUR]||{};if(x==null||x==='')delete E[CUR][id];else E[CUR][id]=x;if(!Object.keys(E[CUR]).length)delete E[CUR];saveE();
+ const s=document.getElementById('saved'),LV=logVars();if(s)s.textContent=`Opgeslagen, ${LV.filter(v=>(E[CUR]||{})[v.id]!=null).length} van ${LV.length} ingevuld`}
+function bindVandaag(){
+ const m=document.getElementById('main');
+ m.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{const n=addD(CUR,+b.dataset.d);if(n<=today()){CUR=n;render()}});
+ document.getElementById('dpick').onchange=e=>{if(e.target.value){CUR=e.target.value;render()}};
+ m.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{const id=b.dataset.v,x=+b.dataset.x,cur=(E[CUR]||{})[id];setVal(id,cur===x?null:x);b.parentNode.querySelectorAll('button').forEach(o=>o.classList.toggle('on',o===b&&cur!==x))});
+ m.querySelectorAll('[data-in]').forEach(i=>i.onchange=()=>{const v=byId(i.dataset.in);let x=i.value;if(x===''){setVal(v.id,null);return}
+  if(v.type==='time'){const[h,mm]=x.split(':').map(Number);let t=h+mm/60;if(v.id==='bedtijd'&&t<12)t+=24;x=t}else x=parseFloat(String(x).replace(',','.'));setVal(v.id,isNaN(x)?null:x)})}
+
+/* ================= Overzicht ================= */
+let OA='slaap_kwal',OB='cafeine_na16';
+function vOverzicht(){
+ const D=dates();if(D.length<7)return`<h1>Overzicht</h1><p>Na een week gegevens verschijnt hier je profiel. Je hebt er nu ${D.length}.</p>`;
+ if(!byId(OA)||hidden().has(OA))OA=allVars()[0].id;if(OB&&!allVars().some(v=>v.id===OB))OB='';
+ const last=D[D.length-1],r7=D.slice(-7),prev=D.slice(-37,-7);
+ let rows='';allVars().forEach(v=>{const a=r7.map(d=>val(d,v)).filter(x=>x!=null),b=prev.map(d=>val(d,v)).filter(x=>x!=null);if(!a.length)return;
+  const ma=mean(a),mb=mean(b),s=sd(b);let ch='<span class="mut">stabiel</span>';
+  if(mb!=null&&s>0&&Math.abs(ma-mb)>.3*s){const up=ma>mb;if(v.dir===0)ch=`<span>${up?'hoger':'lager'}</span>`;else{const good=(up?1:-1)*v.dir>0;ch=`<span class="${good?'better':'worse'}">${up?'hoger':'lager'}, ${good?'beter':'slechter'}</span>`}}
+  rows+=`<tr><td>${esc(v.name)}</td><td class="num">${fv(v,ma)}</td><td class="num mut">${fv(v,mb)}</td><td>${ch}</td><td>${spark(v)}</td></tr>`});
+ const opts=sel=>allVars().map(v=>`<option value="${v.id}" ${v.id===sel?'selected':''}>${esc(v.name)}</option>`).join('');
+ return`<h1>Hoe gaat het met je lichaam</h1>
+ <p class="lead">Je laatste 7 dagen vergeleken met de 30 dagen daarvoor, op basis van ${D.length} dagen gegevens tot ${parse(last).toLocaleDateString('nl-BE',{day:'numeric',month:'long'})}.</p>
+ <div style="overflow-x:auto"><table><thead><tr><th>Variabele</th><th>Laatste 7 dagen</th><th>30 dagen ervoor</th><th>Verandering</th><th>Verloop 60 dagen</th></tr></thead><tbody>${rows}</tbody></table></div>
+ <h2>Twee variabelen naast elkaar</h2><p class="mut">Punten zijn losse dagen, de lijn is het gemiddelde over 7 dagen.</p>
+ <div class="controls"><span style="color:var(--acc);font-weight:600">Links</span><select id="oa">${opts(OA)}</select><span style="color:var(--neg);font-weight:600">Rechts</span><select id="ob"><option value="">Geen</option>${opts(OB)}</select></div>
+ <div>${tsChart(byId(OA),OB?byId(OB):null)}</div>
+ <h2>Weekpatroon</h2><p class="mut">Gemiddelde per weekdag van <strong>${esc(byId(OA).name)}</strong>. Hoogste en laagste dag zijn donker.</p>
+ <div style="max-width:520px">${weekChart(byId(OA))}</div>`}
+function bindOverzicht(){document.getElementById('oa').onchange=e=>{OA=e.target.value;render()};document.getElementById('ob').onchange=e=>{OB=e.target.value;render()}}
+
+/* ================= Verbanden ================= */
+let HLAG=1;
+function comboHTML(c){
+ const Y=c.Y,lt=lagText(Y,c.lag),f=x=>Y.type==='bool'?nl(x*100,0)+'% van de dagen':fv(Y,x);
+ return`<div class="combo"><div class="ft">${esc(c.labA)} en ${esc(lc(c.labB))}: ${esc(lc(Y.name))} ${lt}</div><div class="small mut">${c.sure?'Betrouwbaar':'Vermoeden, nog te bevestigen met meer dagen'}</div>
+ <table><tbody><tr><td>Allebei</td><td class="num"><strong>${f(c.mb)}</strong></td><td class="small mut">${c.nb} d.</td></tr>
+ <tr><td>Alleen ${esc(lc(c.labA))}</td><td class="num">${f(c.ma)}</td><td class="small mut">${c.na} d.</td></tr>
+ <tr><td>Alleen ${esc(lc(c.labB))}</td><td class="num">${f(c.mB)}</td><td class="small mut">${c.nB} d.</td></tr>
+ <tr><td>Geen van beide</td><td class="num">${f(c.mn)}</td><td class="small mut">${c.nn} d.</td></tr></tbody></table></div>`}
+function vVerbanden(){
+ const D=dates();if(D.length<14)return`<h1>Verbanden</h1><p>Vanaf 14 dagen gegevens zoekt Spoor naar verbanden. Je hebt er nu ${D.length}.</p>`;
+ if(!isPremium())return vVerbandenPaywall();
+ const F=findings(),CB=combos();
+ let s=`<h1>Wat hangt bij jou samen</h1>
+ <p class="lead">Spoor vergeleek elke variabele met elke andere, op dezelfde dag en tot 3 dagen later. ${F.length} verbanden zijn sterk genoeg om geen toeval te zijn${CB.length?`, plus ${CB.length} ${CB.length===1?'combinatie':'combinaties'} van gewoonten`:''}.</p>
+ <h2>Sterkste verbanden</h2>`;
+ F.slice(0,12).forEach(f=>{const e=effect(f);s+=`<div class="finding" data-cell="${f.X.id}|${f.Y.id}|${f.lag}"><div class="r">${f.r>0?'+':''}${nl(f.r,2)}<small>${strength(f.r)}</small></div><div><div class="ft">${esc(f.X.name)} en ${esc(lc(f.Y.name))} ${lagText(f.Y,f.lag,f.X)}</div><div>${esc(e.txt)}</div><div class="small mut">${f.n} dagen vergeleken</div></div></div>`});
+ s+=`<div id="det"></div>`;
+ if(CB.length){s+=`<h2>Combinaties</h2><p class="mut" style="max-width:640px">Twee gewoonten die samen meer effect hebben dan elk apart opgeteld. Zulke combinaties vragen veel gegevens: hoe langer je invult, hoe zekerder.</p>`;CB.slice(0,6).forEach(c=>s+=comboHTML(c))}
+ s+=`<h2>Alle combinaties van twee variabelen</h2><p class="mut">Groen: gaan samen omhoog. Oranje: als het ene stijgt, daalt het andere. Een getal betekent een betrouwbaar verband (correlatie x 100). Tik op een vakje voor de uitleg.</p>
+ <div class="controls"><div class="seg">${LAGS.map(l=>`<button data-lag="${l}" class="${HLAG===l?'on':''}">${l===0?'Dezelfde dag':l===1?'De dag erna':l+' dagen later'}</button>`).join('')}</div></div>
+ <p class="small mut">${HLAG===0?'Rij en kolom op dezelfde dag.':'Rij: de gewoonte of meting op een dag. Kolom: '+(HLAG===1?'de dag erna':HLAG+' dagen later')+'.'}</p>
+ <div style="overflow-x:auto">${heatmap(HLAG)}</div>
+ <p class="note">Een verband is nog geen oorzaak. Spoor gebruikt een rangcorrelatie (Spearman), corrigeert voor het grote aantal vergelijkingen (Benjamini-Hochberg) en houdt alleen verbanden over die blijven staan als je weekpatronen wegfiltert. Wil je weten of iets echt een oorzaak is: start een test via Advies.</p>`;
+ return s}
+function vVerbandenPaywall(){
+ return`<h1>Wat hangt bij jou samen</h1>
+ <p class="lead">Spoor zocht in je gegevens naar verbanden tussen je gewoontes en hoe je je voelt, met tot 3 dagen vertraging. Dit onderdeel is Premium.</p>
+ <h3>Met Premium krijg je</h3>
+ <ul style="max-width:560px">
+ <li>De sterkste verbanden tussen al je variabelen, met hoeveel dagen vertraging ze optreden</li>
+ <li>Een volledige heatmap van elk paar variabelen</li>
+ <li>Combinaties van twee gewoontes die samen meer effect hebben dan apart</li>
+ <li>Uitgebreid advies over al je gewoontes, plus de test van 14 dagen</li>
+ </ul>
+ <p style="margin-top:20px"><a class="btn" style="text-decoration:none;display:inline-block" href="${esc(BUY_URL)}" target="_blank">Spoor Premium activeren</a> <button class="link" style="margin-left:14px" onclick="go('data')">Ik heb al een code</button></p>
+ <p class="note">Advies over je slaap en voeding blijft gratis, net als dagelijks invullen en je Overzicht.</p>`}
+function detail(key){
+ const[x,y,l]=key.split('|'),res=analyse().res,f=res.find(r=>r.X.id===x&&r.Y.id===y&&r.lag===+l)||res.find(r=>r.X.id===y&&r.Y.id===x&&r.lag===+l);if(!f)return;
+ const e=effect(f),sig=f.q<.05,el=document.getElementById('det');
+ el.innerHTML=`<div class="detail"><h2 style="margin-top:12px">${esc(f.X.name)} en ${esc(lc(f.Y.name))} ${lagText(f.Y,f.lag,f.X)}</h2>
+ <p class="lead">${esc(e.txt)}</p>
+ <div class="two"><div>${scatter(f,e)}<h3>Na hoeveel dagen</h3><p class="small mut">Correlatie per vertraging. Vol = betrouwbaar.</p>${lagChart(f.X,f.Y)}</div><div>
+ <table><tbody><tr><td>Correlatie</td><td class="num">${nl(f.r,2)} (${strength(f.r)})</td></tr>
+ <tr><td>Zonder weekpatroon</td><td class="num">${nl(f.radj,2)}</td></tr>
+ <tr><td>Dagen vergeleken</td><td class="num">${f.n}</td></tr>
+ <tr><td>${esc(e.sp.hiL)}</td><td class="num">${fv(f.Y,e.mh)} <span class="mut">(${e.nh} d.)</span></td></tr>
+ <tr><td>${esc(uc(e.sp.loL))}</td><td class="num">${fv(f.Y,e.ml)} <span class="mut">(${e.nlo} d.)</span></td></tr>
+ <tr><td>Betrouwbaar</td><td>${sig?'ja, waarschijnlijk geen toeval':'nee, kan toeval zijn'}</td></tr></tbody></table>
+ <p class="small mut">${f.lag>=1?`Gemeten: ${lc(f.X.name)} op een dag tegenover ${lc(f.Y.name)} ${lagText(f.Y,f.lag)}. Omdat de mogelijke oorzaak eerst komt, is dit sterker bewijs dan een verband op dezelfde dag.`:'Gemeten op dezelfde dag: wat oorzaak is en wat gevolg, blijft open.'}</p></div></div></div>`;
+ el.scrollIntoView({behavior:'smooth',block:'start'})}
+function bindVerbanden(){const m=document.getElementById('main');
+ m.querySelectorAll('[data-cell]').forEach(c=>c.addEventListener('click',()=>detail(c.dataset.cell)));
+ m.querySelectorAll('[data-lag]').forEach(b=>b.onclick=()=>{HLAG=+b.dataset.lag;render()});
+ if(SEL){detail(SEL);SEL=null}}
+
+/* ================= Advies ================= */
+function adviceItems(){
+ const F=findings().filter(f=>f.X.ctrl&&!f.Y.ctrl&&f.Y.dir!==0&&(f.lag>=1||f.Y.group!=='Slaap'||f.X.id==='bedtijd'));
+ const by={};F.forEach(f=>(by[f.X.id]=by[f.X.id]||[]).push(f));
+ const items=[];
+ for(const k in by){
+  const seen=new Set(),uniq=by[k].sort((a,b)=>Math.abs(b.r)-Math.abs(a.r)).filter(f=>!seen.has(f.Y.id)&&seen.add(f.Y.id));
+  const main=uniq[0],X=main.X,more=Math.sign(main.r)*main.Y.dir>0,e0=effect(main),tgt=more?e0.mxh:e0.mxl;
+  const nk=Math.max(1,Math.round(tgt));let t;
+  switch(X.id){
+   case'cafeine_na16':t=more?'Cafeïne na 16u lijkt je niet te schaden':'Drink na 16u geen cafeïne meer';break;
+   case'cafeine_laatst':t=more?'Spreid je cafeïne over de dag':`Neem je laatste cafeïne voor ${fT(e0.sp.thr)}`;break;
+   case'cafeine':t=more?'Cafeïne lijkt je te helpen, houd het gelijkmatig':`Beperk cafeïne tot ongeveer ${nk} ${nk===1?'kop':'koppen'} per dag`;break;
+   case'alcohol':t=more?'Alcohol lijkt hier geen nadeel, blijf opletten':'Plan meer alcoholvrije avonden';break;
+   case'bedtijd':t=more?'Later slapen lijkt je niet te schaden':`Ga slapen rond ${fT(e0.mxl)}`;break;
+   case'stappen':t=more?`Mik op minstens ${nl(Math.round(tgt/500)*500,0)} stappen per dag`:'Neem na drukke dagen meer rust';break;
+   case'sport':t=more?'Beweeg op meer dagen, al is het kort':'Plan rust na zware trainingen';break;
+   case'water':t=more?`Drink minstens ${nl(Math.round(tgt*10)/10,1)} liter per dag`:'Meer water lijkt hier niets te veranderen';break;
+   case'scherm_avond':t=more?'Schermtijd lijkt geen nadeel':`Houd schermtijd na 21u onder ${nl(Math.max(15,Math.round(tgt/15)*15),0)} minuten`;break;
+   default:t=`${more?'Meer':'Minder'} ${lc(X.name)}`}
+  const effs=uniq.slice(0,4).map(f=>{const e=effect(f),good=more?e.mh:e.ml,bad=more?e.ml:e.mh;
+   return`<li>${esc(f.Y.name)} ${lagText(f.Y,f.lag,f.X)}: <strong>${fv(f.Y,good)}</strong> in plaats van ${fv(f.Y,bad)}</li>`}).join('');
+  items.push({X,t,more,effs,score:uniq.reduce((s,f)=>s+Math.abs(f.r),0),main,e0});
+ }
+ items.sort((a,b)=>b.score-a.score);const fam=new Set();
+ return items.filter(it=>!it.X.fam||(!fam.has(it.X.fam)&&fam.add(it.X.fam)))}
+function vAdvies(){
+ const D=dates();if(D.length<14)return`<h1>Advies</h1><p>Na 14 dagen gegevens krijg je hier persoonlijk advies. Je hebt er nu ${D.length}.</p>`;
+ const premium=isPremium();
+ let items=adviceItems();
+ if(!premium)items=items.filter(it=>it.X.group==='Slaap'||it.X.group==='Voeding en middelen');
+ const EX=premium?(store.get('spoor_exp')||[]):[],CB=premium?combos():[];
+ let s=`<h1>Wat je kan proberen</h1><p class="lead">Advies op basis van jouw eigen gegevens, gerangschikt op hoeveel het lijkt op te leveren. Alleen gewoonten die je zelf in de hand hebt.${premium?'':' Gratis: advies over slaap en voeding. De rest van je gewoontes, combinaties en de test van 14 dagen zijn Premium.'}</p>`;
+ if(EX.length){s+=`<h2>Lopende tests</h2>`;EX.forEach((x,i)=>s+=expBlock(x,i))}
+ s+=`<h2>Adviezen</h2>`;
+ if(!items.length)s+=`<p>Nog geen betrouwbare verbanden met je gewoonten. Blijf invullen.</p>`;
+ items.forEach((it,i)=>{const run=EX.some(x=>x.xid===it.X.id);
+  s+=`<div class="advice"><div class="nr">${i+1}</div><div><p class="t">${esc(it.t)}</p>
+  <div>Toen je dit deed, zag Spoor bij jou:</div><ul>${it.effs}</ul>
+  <div class="small mut">Gebaseerd op ${it.main.n} dagen.${premium?' Een verband, geen bewijs: test het 14 dagen en Spoor vergelijkt voor en na.':''}</div>
+  ${premium?`<div style="margin-top:10px">${run?'<span class="mut small">Test loopt</span>':`<button class="ghost" onclick="startExp('${it.X.id}')">Start test van 14 dagen</button>`}
+  <button class="link" style="margin-left:12px" onclick="SEL='${it.main.X.id}|${it.main.Y.id}|${it.main.lag}';go('verbanden')">Bekijk het verband</button></div>`:''}</div></div>`});
+ if(premium&&CB.length){s+=`<h2>Combinaties om te vermijden</h2><p class="mut">Apart valt het mee, samen weegt het door.</p>`;
+  const seen=new Set();CB.filter(c=>{const k=c.A.id+c.B.id;if(seen.has(k))return false;seen.add(k);return true}).slice(0,3).forEach(c=>{
+   const Y=c.Y,f=x=>Y.type==='bool'?nl(x*100,0)+'%':fv(Y,x);
+   s+=`<div class="combo"><div class="ft">Vermijd ${esc(lc(c.labA))} samen met ${esc(lc(c.labB))}</div><div class="small mut">${c.sure?'Betrouwbaar':'Vermoeden, nog te bevestigen'}</div><div>${esc(Y.name)} ${lagText(Y,c.lag)}: <strong>${f(c.mb)}</strong> als beide samen voorkomen, ${f(c.ma)} en ${f(c.mB)} als het er maar een is, ${f(c.mn)} zonder.</div></div>`})}
+ if(!premium)s+=`<div class="detail" style="margin-top:28px"><h3>Meer met Premium</h3><p class="mut" style="max-width:560px">Advies over al je gewoontes, niet enkel slaap en voeding. De test van 14 dagen om te checken of het echt werkt. En combinaties van gewoontes die samen meer effect hebben dan apart.</p><p><a class="btn" style="text-decoration:none;display:inline-block" href="${esc(BUY_URL)}" target="_blank">Spoor Premium activeren</a></p></div>`;
+ s+=`<p class="note">Spoor geeft geen medisch advies. Bij klachten die blijven of erger worden: praat met je huisarts.</p>`;
+ return s}
+function startExp(xid){const it=adviceItems().find(a=>a.X.id===xid);if(!it)return;const EX=store.get('spoor_exp')||[];
+ const ys=[...new Set(findings().filter(f=>f.X.id===xid&&!f.Y.ctrl&&f.Y.dir!==0).map(f=>f.Y.id))].slice(0,4);
+ const last=dates().slice(-1)[0]||today();
+ EX.push({xid,more:it.more,thr:it.e0.sp.thr??null,t:it.t,start:store.get('spoor_demo')?addD(last,-9):today(),days:14,ys});store.set('spoor_exp',EX);render()}
+function stopExp(i){const EX=store.get('spoor_exp')||[];EX.splice(i,1);store.set('spoor_exp',EX);render()}
+function expBlock(x,i){
+ const X=byId(x.xid),D=dates(),end=addD(x.start,x.days),inn=D.filter(d=>d>=x.start&&d<end),before=D.filter(d=>d<x.start&&d>=addD(x.start,-28));
+ const elapsed=Math.min(x.days,Math.max(0,Math.round((parse(store.get('spoor_demo')?D[D.length-1]:today())-parse(x.start))/864e5)+1));
+ const ok=inn.filter(d=>{const v=val(d,X);if(v==null)return false;if(X.type==='bool')return x.more?v===1:v===0;const t=x.thr??0;return x.more?v>t:v<=t}).length;
+ const rows=x.ys.map(id=>{const Y=byId(id);if(!Y)return'';const a=inn.map(d=>val(d,Y)).filter(v=>v!=null),b=before.map(d=>val(d,Y)).filter(v=>v!=null),ma=mean(a),mb=mean(b);
+  let c='';if(ma!=null&&mb!=null){const same=Math.abs(ma-mb)<.05*Math.abs(mb||1),good=(ma-mb)*Y.dir>0;c=`<span class="${same?'mut':good?'better':'worse'}">${same?'gelijk':good?'beter':'slechter'}</span>`}
+  return`<tr><td>${esc(Y.name)}</td><td class="num mut">${fv(Y,mb)}</td><td class="num">${a.length?fv(Y,ma):'–'}</td><td>${c}</td></tr>`}).join('');
+ const done=elapsed>=x.days;
+ return`<h3>${esc(x.t)}</h3><div class="small mut">${done?'Test afgelopen':'Dag '+elapsed+' van '+x.days}, gelukt op ${ok} van ${inn.length} ingevulde dagen</div><div class="bar"><i style="width:${elapsed/x.days*100}%"></i></div>
+ <table style="max-width:640px"><thead><tr><th>Wat Spoor meet</th><th>4 weken ervoor</th><th>Tijdens de test</th><th></th></tr></thead><tbody>${rows}</tbody></table>
+ <p class="small"><button class="link" onclick="stopExp(${i})">${done?'Test afsluiten':'Test stoppen'}</button></p>`}
+
+/* ================= Instellingen ================= */
+function premiumBlockHTML(){
+ const l=license();
+ if(isPremium())return`<p>Premium is actief${l&&l.key?` (code eindigt op \u2026${esc(l.key.slice(-4))})`:''}. Je hebt toegang tot Verbanden en het volledige advies.</p><p><button class="link" onclick="deactivateLicense()">Code loskoppelen van dit toestel</button></p>`;
+ const expired=l&&l.status==='invalid';
+ return`<p class="mut">Met Premium krijg je het tabblad Verbanden (alle kruisverbanden, de heatmap, combinaties van gewoontes) en volledig advies over al je gewoontes.</p>
+ ${expired?`<p class="small" style="color:var(--neg)">Je code is niet meer geldig. Vul hem opnieuw in of koop een nieuwe.</p>`:''}
+ <div class="controls"><input id="lkey" placeholder="bv. ABCD1234-EF56-..." style="min-width:260px"><button class="btn" onclick="submitLicense()">Code activeren</button></div>
+ <p class="small mut" id="lkeyMsg">&nbsp;</p>
+ <p><a class="ghost" style="text-decoration:none;display:inline-block" href="${esc(BUY_URL)}" target="_blank">Spoor Premium kopen</a></p>`}
+function vData(){
+ const n=Object.keys(E).length,cv=customVars(),h=hidden(),st=settings();
+ return`<h1>Instellingen</h1><p class="lead">${n} dagen opgeslagen, alleen op dit toestel. Niets gaat naar een server.</p>
+ <h2>Spoor Premium</h2>${premiumBlockHTML()}
+ <h2>Wat volg je</h2><p class="mut">Zet uit wat je niet wil invullen. Je gegevens blijven bewaard.</p>
+ <div class="check">${BASE.map(v=>`<label><input type="checkbox" ${h.has(v.id)?'':'checked'} onchange="toggleVar('${v.id}',this.checked)">${esc(v.name)}</label>`).join('')}</div>
+ <h2>Eigen variabele toevoegen</h2><p class="mut">Alles wat je wil volgen: een symptoom, een voedingsmiddel, medicatie, je cyclus.</p>
+ <div class="row"><div class="lab">Naam</div><div><input id="cvn" placeholder="bv. Buikpijn"></div></div>
+ <div class="row"><div class="lab">Soort</div><div><select id="cvt"><option value="scale">Score 1 tot 10</option><option value="bool">Ja of nee</option><option value="num">Getal</option><option value="time">Tijdstip</option></select> <input id="cvu" placeholder="eenheid (optioneel)" style="width:170px"></div></div>
+ <div class="row"><div class="lab">Wat is dit</div><div><select id="cvc"><option value="out-">Iets wat ik minder wil (klacht)</option><option value="out+">Iets wat ik meer wil (welzijn)</option><option value="ctrl">Een gewoonte die ik zelf kies</option></select></div></div>
+ <p><button class="btn" onclick="addVar()">Toevoegen</button></p>
+ ${cv.length?`<table style="max-width:640px"><tbody>${cv.map(v=>`<tr><td>${esc(v.name)}</td><td class="mut">${v.ctrl?'gewoonte':v.dir>0?'welzijn':'klacht'}</td><td><button class="link" onclick="delVar('${v.id}')">Verwijderen</button></td></tr>`).join('')}</tbody></table>`:''}
+ <h2>Dagelijkse herinnering</h2><p class="mut">Zet een terugkerende herinnering in de agenda van je telefoon. Zo krijg je elke dag een melding, ook als de app dicht is.</p>
+ <div class="controls"><input type="time" id="rem" value="${st.reminder}"><button class="ghost" onclick="reminderICS()">Herinnering in agenda zetten</button></div>
+ <h2>Back-up</h2><p class="mut">Je gegevens staan alleen op dit toestel. Maak af en toe een back-up, bijvoorbeeld naar iCloud Drive.</p>
+ <p><button class="ghost" onclick="backup()">Back-up maken</button> <label class="ghost">Back-up terugzetten<input type="file" accept=".json" style="display:none" onchange="restore(this.files[0])"></label></p>
+ <h2>Exporteren naar Excel</h2><p class="mut">CSV met een kolom <em>datum</em> en een kolom per variabele. Importeren kan in hetzelfde formaat.</p>
+ <p><button class="ghost" onclick="exportCSV()">CSV downloaden</button> <label class="ghost">CSV importeren<input type="file" accept=".csv" style="display:none" onchange="importCSV(this.files[0])"></label></p>
+ <h2>Opnieuw beginnen</h2><p><button class="link" onclick="loadDemo()">Voorbeelddata laden</button> &nbsp; <button class="link" onclick="startOwn()">Alles wissen</button></p>
+ <p class="note">Op iPhone: open Spoor in Safari, tik op het deelicoon en kies "Zet op beginscherm". Dan werkt het als een gewone app, ook zonder internet.</p>`}
+function toggleVar(id,on){const h=hidden();on?h.delete(id):h.add(id);store.set('spoor_hidden',[...h]);CACHE=null}
+function addVar(){const n=document.getElementById('cvn').value.trim();if(!n)return;const c=document.getElementById('cvc').value,t=document.getElementById('cvt').value;
+ const v={id:'c_'+Date.now(),name:n,unit:document.getElementById('cvu').value.trim()||(t==='scale'?'/10':''),type:t,group:'Eigen variabelen',ctrl:c==='ctrl',dir:c==='ctrl'?0:c==='out+'?1:-1};
+ const cv=customVars();cv.push(v);store.set('spoor_custom',cv);CACHE=null;render()}
+function delVar(id){if(!confirm('Variabele verwijderen? Ingevulde waarden blijven in je back-up.'))return;store.set('spoor_custom',customVars().filter(v=>v.id!==id));CACHE=null;render()}
+function dl(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
+function exportCSV(){const V=logVars(),rows=[['datum',...V.map(v=>v.id)].join(',')];Object.keys(E).sort().forEach(d=>rows.push([d,...V.map(v=>E[d][v.id]??'')].join(',')));dl('spoor-'+today()+'.csv',rows.join('\n'),'text/csv')}
+function importCSV(f){if(!f)return;f.text().then(t=>{const L=t.trim().split(/\r?\n/),h=L[0].split(/[,;]/);L.slice(1).forEach(l=>{const c=l.split(/[,;]/),d=c[0];if(!/^\d{4}-\d\d-\d\d$/.test(d))return;E[d]=E[d]||{};h.forEach((k,i)=>{if(i&&c[i]!==''&&c[i]!=null){const x=parseFloat(c[i].replace(',','.'));if(!isNaN(x))E[d][k]=x}})});store.set('spoor_demo',false);store.set('spoor_started',true);saveE();render()})}
+function backup(){const o={app:'spoor',versie:1,datum:today()};KEYS.forEach(k=>o[k]=store.get(k));dl('spoor-backup-'+today()+'.json',JSON.stringify(o),'application/json')}
+function restore(f){if(!f)return;f.text().then(t=>{try{const o=JSON.parse(t);if(o.app!=='spoor')throw 0;if(!confirm('Huidige gegevens vervangen door deze back-up?'))return;KEYS.forEach(k=>{if(k in o)store.set(k,o[k])});E=store.get('spoor_entries')||{};CACHE=null;render()}catch(e){alert('Dit is geen geldige Spoor-back-up.')}})}
+function loadDemo(){E=genDemo();store.set('spoor_demo',true);saveE();render()}
+function reminderICS(){const t=document.getElementById('rem').value||'21:00';const st=settings();st.reminder=t;store.set('spoor_settings',st);
+ const d=today().replace(/-/g,''),hm=t.replace(':','')+'00',now=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';
+ const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Spoor//NL','CALSCALE:GREGORIAN','BEGIN:VEVENT','UID:spoor-herinnering-'+Date.now()+'@spoor','DTSTAMP:'+now,'DTSTART:'+d+'T'+hm,'DURATION:PT5M','RRULE:FREQ=DAILY','SUMMARY:Spoor invullen','DESCRIPTION:Twee minuten: hoe was je dag?','BEGIN:VALARM','TRIGGER:PT0M','ACTION:DISPLAY','DESCRIPTION:Spoor invullen','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+ dl('spoor-herinnering.ics',ics,'text/calendar')}
+
+/* ================= offline ================= */
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+render();
+</script>
+</body>
+</html>
