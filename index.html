@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Spoor</title>
+<title>Corvitax</title>
 <meta name="theme-color" content="#F7F5F0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Spoor">
+<meta name="apple-mobile-web-app-title" content="Corvitax">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -89,7 +89,7 @@ footer{height:80px}
 </style>
 </head>
 <body>
-<header class="top"><div class="wrap"><div class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#1E5E57"/><path d="M14 46 L27 33 L37 39 L50 20" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="14" cy="46" r="5" fill="#fff"/><circle cx="37" cy="39" r="5" fill="#fff"/><circle cx="50" cy="20" r="5" fill="#fff"/></svg>Spoor</div>
+<header class="top"><div class="wrap"><div class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#1E5E57"/><path d="M14 46 L27 33 L37 39 L50 20" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="14" cy="46" r="5" fill="#fff"/><circle cx="37" cy="39" r="5" fill="#fff"/><circle cx="50" cy="20" r="5" fill="#fff"/></svg>Corvitax</div>
 <nav id="tabs">
 <button data-t="vandaag">Vandaag</button>
 <button data-t="overzicht">Overzicht</button>
@@ -103,7 +103,7 @@ footer{height:80px}
 <script>
 /* ================= opslag ================= */
 const store=(()=>{const mem={};try{localStorage.setItem('_t','1');return{get:k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))}}catch(e){return{get:k=>mem[k]??null,set:(k,v)=>{mem[k]=v}}}})();
-const KEYS=['spoor_entries','spoor_custom','spoor_hidden','spoor_exp','spoor_settings','spoor_demo','spoor_started','spoor_license'];
+const KEYS=['corvitax_entries','corvitax_custom','corvitax_hidden','corvitax_exp','corvitax_settings','corvitax_demo','corvitax_started','corvitax_license'];
 
 /* ================= variabelen ================= */
 const BASE=[
@@ -126,23 +126,23 @@ const BASE=[
 ];
 const DERIVED=[{id:'cafeine_na16',name:'Cafeïne na 16u',unit:'',type:'bool',group:'Voeding en middelen',dir:0,ctrl:true,fam:'caf',needs:['cafeine','cafeine_laatst'],
  calc:e=>e.cafeine==null?null:(e.cafeine===0?0:(e.cafeine_laatst==null?null:(e.cafeine_laatst>=16?1:0)))}];
-const hidden=()=>new Set(store.get('spoor_hidden')||[]);
-const customVars=()=>store.get('spoor_custom')||[];
+const hidden=()=>new Set(store.get('corvitax_hidden')||[]);
+const customVars=()=>store.get('corvitax_custom')||[];
 function logVars(){const h=hidden();return BASE.filter(v=>!h.has(v.id)).concat(customVars())}
 function allVars(){const h=hidden(),b=BASE.filter(v=>!h.has(v.id));const i=b.findIndex(v=>v.id==='cafeine_laatst');
  const d=DERIVED.filter(v=>v.needs.every(n=>!h.has(n)));if(i>=0)b.splice(i+1,0,...d);return b.concat(customVars())}
 const byId=id=>allVars().find(v=>v.id===id)||BASE.concat(DERIVED,customVars()).find(v=>v.id===id);
-const settings=()=>Object.assign({reminder:'21:00'},store.get('spoor_settings')||{});
+const settings=()=>Object.assign({reminder:'21:00'},store.get('corvitax_settings')||{});
 
 /* ================= Premium (licentiesleutel via Lemon Squeezy) ================= */
 const BUY_URL='https://REPLACE-MET-LEMON-SQUEEZY-CHECKOUTLINK';
-const license=()=>store.get('spoor_license');
+const license=()=>store.get('corvitax_license');
 function isPremium(){const l=license();return!!(l&&l.status==='valid')}
 async function activateLicense(key){
  try{
-  const resp=await fetch('https://api.lemonsqueezy.com/v1/licenses/activate',{method:'POST',headers:{'Accept':'application/json','Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({license_key:key,instance_name:'Spoor-'+Math.random().toString(36).slice(2,8)})});
+  const resp=await fetch('https://api.lemonsqueezy.com/v1/licenses/activate',{method:'POST',headers:{'Accept':'application/json','Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({license_key:key,instance_name:'Corvitax-'+Math.random().toString(36).slice(2,8)})});
   const data=await resp.json();
-  if(data.activated){store.set('spoor_license',{key,instanceId:data.instance?data.instance.id:null,status:'valid',checkedAt:Date.now()});return{ok:true}}
+  if(data.activated){store.set('corvitax_license',{key,instanceId:data.instance?data.instance.id:null,status:'valid',checkedAt:Date.now()});return{ok:true}}
   return{ok:false,error:(data.error||'Deze code is niet geldig.')}
  }catch(e){return{ok:false,error:'Geen internetverbinding. Probeer het later opnieuw.'}}
 }
@@ -151,7 +151,7 @@ async function revalidateLicense(){
  try{
   const resp=await fetch('https://api.lemonsqueezy.com/v1/licenses/validate',{method:'POST',headers:{'Accept':'application/json','Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({license_key:l.key,instance_id:l.instanceId})});
   const data=await resp.json();
-  if(data.valid===false){l.status='invalid';store.set('spoor_license',l)}else{l.checkedAt=Date.now();store.set('spoor_license',l)}
+  if(data.valid===false){l.status='invalid';store.set('corvitax_license',l)}else{l.checkedAt=Date.now();store.set('corvitax_license',l)}
  }catch(e){/* geen internet: status niet wijzigen */}
 }
 async function submitLicense(){
@@ -162,12 +162,12 @@ async function submitLicense(){
  msg.textContent=r.ok?'Gelukt! Premium is actief.':r.error;
  if(r.ok)render()
 }
-function deactivateLicense(){if(!confirm('Premium loskoppelen van dit toestel?'))return;store.set('spoor_license',null);render()}
+function deactivateLicense(){if(!confirm('Premium loskoppelen van dit toestel?'))return;store.set('corvitax_license',null);render()}
 if(license()&&Date.now()-(license().checkedAt||0)>3*864e5)revalidateLicense();
 
 /* ================= data ================= */
-let E=store.get('spoor_entries')||{},CACHE=null;
-function saveE(){store.set('spoor_entries',E);CACHE=null}
+let E=store.get('corvitax_entries')||{},CACHE=null;
+function saveE(){store.set('corvitax_entries',E);CACHE=null}
 const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const parse=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)};
 const addD=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return iso(d)};
@@ -207,7 +207,7 @@ function genDemo(){
  Object.values(out).forEach(e=>{if(e.cafeine_laatst==null)delete e.cafeine_laatst});
  return out;
 }
-if(!Object.keys(E).length&&!store.get('spoor_started')){E=genDemo();store.set('spoor_demo',true);saveE()}
+if(!Object.keys(E).length&&!store.get('corvitax_started')){E=genDemo();store.set('corvitax_demo',true);saveE()}
 
 /* ================= formattering ================= */
 const nl=(x,d=1)=>x==null||isNaN(x)?'–':x.toLocaleString('nl-BE',{minimumFractionDigits:0,maximumFractionDigits:d});
@@ -360,12 +360,12 @@ function heatmap(lag){
 let TAB=location.hash.slice(1)||'vandaag',CUR=today(),SEL=null;
 function go(t){TAB=t;history.replaceState(null,'','#'+t);render();scrollTo(0,0)}
 document.getElementById('tabs').onclick=e=>{const b=e.target.closest('button');if(b)go(b.dataset.t)};
-function demoBar(){const el=document.getElementById('demo');el.innerHTML=store.get('spoor_demo')?`Je bekijkt voorbeelddata van 90 dagen. <button class="link" onclick="startOwn()">Wis en begin met je eigen gegevens</button>`:''}
-function startOwn(){if(!confirm('Alle gegevens wissen en opnieuw beginnen?'))return;E={};store.set('spoor_demo',false);store.set('spoor_started',true);store.set('spoor_exp',[]);saveE();CUR=today();go('vandaag')}
+function demoBar(){const el=document.getElementById('demo');el.innerHTML=store.get('corvitax_demo')?`Je bekijkt voorbeelddata van 90 dagen. <button class="link" onclick="startOwn()">Wis en begin met je eigen gegevens</button>`:''}
+function startOwn(){if(!confirm('Alle gegevens wissen en opnieuw beginnen?'))return;E={};store.set('corvitax_demo',false);store.set('corvitax_started',true);store.set('corvitax_exp',[]);saveE();CUR=today();go('vandaag')}
 function render(){
  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===TAB));demoBar();
  const m=document.getElementById('main');
- let nudge='';if(TAB!=='vandaag'&&!store.get('spoor_demo')&&!E[today()])nudge=`<div class="nudge">Je hebt vandaag nog niets ingevuld. <button class="link" onclick="CUR=today();go('vandaag')">Nu invullen</button></div>`;
+ let nudge='';if(TAB!=='vandaag'&&!store.get('corvitax_demo')&&!E[today()])nudge=`<div class="nudge">Je hebt vandaag nog niets ingevuld. <button class="link" onclick="CUR=today();go('vandaag')">Nu invullen</button></div>`;
  m.innerHTML=nudge+({vandaag:vVandaag,overzicht:vOverzicht,verbanden:vVerbanden,advies:vAdvies,data:vData}[TAB]||vVandaag)();
  if(TAB==='overzicht')bindOverzicht();if(TAB==='verbanden')bindVerbanden();if(TAB==='vandaag')bindVandaag()}
 
@@ -424,11 +424,11 @@ function comboHTML(c){
  <tr><td>Alleen ${esc(lc(c.labB))}</td><td class="num">${f(c.mB)}</td><td class="small mut">${c.nB} d.</td></tr>
  <tr><td>Geen van beide</td><td class="num">${f(c.mn)}</td><td class="small mut">${c.nn} d.</td></tr></tbody></table></div>`}
 function vVerbanden(){
- const D=dates();if(D.length<14)return`<h1>Verbanden</h1><p>Vanaf 14 dagen gegevens zoekt Spoor naar verbanden. Je hebt er nu ${D.length}.</p>`;
+ const D=dates();if(D.length<14)return`<h1>Verbanden</h1><p>Vanaf 14 dagen gegevens zoekt Corvitax naar verbanden. Je hebt er nu ${D.length}.</p>`;
  if(!isPremium())return vVerbandenPaywall();
  const F=findings(),CB=combos();
  let s=`<h1>Wat hangt bij jou samen</h1>
- <p class="lead">Spoor vergeleek elke variabele met elke andere, op dezelfde dag en tot 3 dagen later. ${F.length} verbanden zijn sterk genoeg om geen toeval te zijn${CB.length?`, plus ${CB.length} ${CB.length===1?'combinatie':'combinaties'} van gewoonten`:''}.</p>
+ <p class="lead">Corvitax vergeleek elke variabele met elke andere, op dezelfde dag en tot 3 dagen later. ${F.length} verbanden zijn sterk genoeg om geen toeval te zijn${CB.length?`, plus ${CB.length} ${CB.length===1?'combinatie':'combinaties'} van gewoonten`:''}.</p>
  <h2>Sterkste verbanden</h2>`;
  F.slice(0,12).forEach(f=>{const e=effect(f);s+=`<div class="finding" data-cell="${f.X.id}|${f.Y.id}|${f.lag}"><div class="r">${f.r>0?'+':''}${nl(f.r,2)}<small>${strength(f.r)}</small></div><div><div class="ft">${esc(f.X.name)} en ${esc(lc(f.Y.name))} ${lagText(f.Y,f.lag,f.X)}</div><div>${esc(e.txt)}</div><div class="small mut">${f.n} dagen vergeleken</div></div></div>`});
  s+=`<div id="det"></div>`;
@@ -437,11 +437,11 @@ function vVerbanden(){
  <div class="controls"><div class="seg">${LAGS.map(l=>`<button data-lag="${l}" class="${HLAG===l?'on':''}">${l===0?'Dezelfde dag':l===1?'De dag erna':l+' dagen later'}</button>`).join('')}</div></div>
  <p class="small mut">${HLAG===0?'Rij en kolom op dezelfde dag.':'Rij: de gewoonte of meting op een dag. Kolom: '+(HLAG===1?'de dag erna':HLAG+' dagen later')+'.'}</p>
  <div style="overflow-x:auto">${heatmap(HLAG)}</div>
- <p class="note">Een verband is nog geen oorzaak. Spoor gebruikt een rangcorrelatie (Spearman), corrigeert voor het grote aantal vergelijkingen (Benjamini-Hochberg) en houdt alleen verbanden over die blijven staan als je weekpatronen wegfiltert. Wil je weten of iets echt een oorzaak is: start een test via Advies.</p>`;
+ <p class="note">Een verband is nog geen oorzaak. Corvitax gebruikt een rangcorrelatie (Spearman), corrigeert voor het grote aantal vergelijkingen (Benjamini-Hochberg) en houdt alleen verbanden over die blijven staan als je weekpatronen wegfiltert. Wil je weten of iets echt een oorzaak is: start een test via Advies.</p>`;
  return s}
 function vVerbandenPaywall(){
  return`<h1>Wat hangt bij jou samen</h1>
- <p class="lead">Spoor zocht in je gegevens naar verbanden tussen je gewoontes en hoe je je voelt, met tot 3 dagen vertraging. Dit onderdeel is Premium.</p>
+ <p class="lead">Corvitax zocht in je gegevens naar verbanden tussen je gewoontes en hoe je je voelt, met tot 3 dagen vertraging. Dit onderdeel is Premium.</p>
  <h3>Met Premium krijg je</h3>
  <ul style="max-width:560px">
  <li>De sterkste verbanden tussen al je variabelen, met hoeveel dagen vertraging ze optreden</li>
@@ -449,7 +449,7 @@ function vVerbandenPaywall(){
  <li>Combinaties van twee gewoontes die samen meer effect hebben dan apart</li>
  <li>Uitgebreid advies over al je gewoontes, plus de test van 14 dagen</li>
  </ul>
- <p style="margin-top:20px"><a class="btn" style="text-decoration:none;display:inline-block" href="${esc(BUY_URL)}" target="_blank">Spoor Premium activeren</a> <button class="link" style="margin-left:14px" onclick="go('data')">Ik heb al een code</button></p>
+ <p style="margin-top:20px"><a class="btn" style="text-decoration:none;display:inline-block" href="${esc(BUY_URL)}" target="_blank">Corvitax Premium activeren</a> <button class="link" style="margin-left:14px" onclick="go('data')">Ik heb al een code</button></p>
  <p class="note">Advies over je slaap en voeding blijft gratis, net als dagelijks invullen en je Overzicht.</p>`}
 function detail(key){
  const[x,y,l]=key.split('|'),res=analyse().res,f=res.find(r=>r.X.id===x&&r.Y.id===y&&r.lag===+l)||res.find(r=>r.X.id===y&&r.Y.id===x&&r.lag===+l);if(!f)return;
@@ -501,39 +501,39 @@ function vAdvies(){
  const premium=isPremium();
  let items=adviceItems();
  if(!premium)items=items.filter(it=>it.X.group==='Slaap'||it.X.group==='Voeding en middelen');
- const EX=premium?(store.get('spoor_exp')||[]):[],CB=premium?combos():[];
+ const EX=premium?(store.get('corvitax_exp')||[]):[],CB=premium?combos():[];
  let s=`<h1>Wat je kan proberen</h1><p class="lead">Advies op basis van jouw eigen gegevens, gerangschikt op hoeveel het lijkt op te leveren. Alleen gewoonten die je zelf in de hand hebt.${premium?'':' Gratis: advies over slaap en voeding. De rest van je gewoontes, combinaties en de test van 14 dagen zijn Premium.'}</p>`;
  if(EX.length){s+=`<h2>Lopende tests</h2>`;EX.forEach((x,i)=>s+=expBlock(x,i))}
  s+=`<h2>Adviezen</h2>`;
  if(!items.length)s+=`<p>Nog geen betrouwbare verbanden met je gewoonten. Blijf invullen.</p>`;
  items.forEach((it,i)=>{const run=EX.some(x=>x.xid===it.X.id);
   s+=`<div class="advice"><div class="nr">${i+1}</div><div><p class="t">${esc(it.t)}</p>
-  <div>Toen je dit deed, zag Spoor bij jou:</div><ul>${it.effs}</ul>
-  <div class="small mut">Gebaseerd op ${it.main.n} dagen.${premium?' Een verband, geen bewijs: test het 14 dagen en Spoor vergelijkt voor en na.':''}</div>
+  <div>Toen je dit deed, zag Corvitax bij jou:</div><ul>${it.effs}</ul>
+  <div class="small mut">Gebaseerd op ${it.main.n} dagen.${premium?' Een verband, geen bewijs: test het 14 dagen en Corvitax vergelijkt voor en na.':''}</div>
   ${premium?`<div style="margin-top:10px">${run?'<span class="mut small">Test loopt</span>':`<button class="ghost" onclick="startExp('${it.X.id}')">Start test van 14 dagen</button>`}
   <button class="link" style="margin-left:12px" onclick="SEL='${it.main.X.id}|${it.main.Y.id}|${it.main.lag}';go('verbanden')">Bekijk het verband</button></div>`:''}</div></div>`});
  if(premium&&CB.length){s+=`<h2>Combinaties om te vermijden</h2><p class="mut">Apart valt het mee, samen weegt het door.</p>`;
   const seen=new Set();CB.filter(c=>{const k=c.A.id+c.B.id;if(seen.has(k))return false;seen.add(k);return true}).slice(0,3).forEach(c=>{
    const Y=c.Y,f=x=>Y.type==='bool'?nl(x*100,0)+'%':fv(Y,x);
    s+=`<div class="combo"><div class="ft">Vermijd ${esc(lc(c.labA))} samen met ${esc(lc(c.labB))}</div><div class="small mut">${c.sure?'Betrouwbaar':'Vermoeden, nog te bevestigen'}</div><div>${esc(Y.name)} ${lagText(Y,c.lag)}: <strong>${f(c.mb)}</strong> als beide samen voorkomen, ${f(c.ma)} en ${f(c.mB)} als het er maar een is, ${f(c.mn)} zonder.</div></div>`})}
- if(!premium)s+=`<div class="detail" style="margin-top:28px"><h3>Meer met Premium</h3><p class="mut" style="max-width:560px">Advies over al je gewoontes, niet enkel slaap en voeding. De test van 14 dagen om te checken of het echt werkt. En combinaties van gewoontes die samen meer effect hebben dan apart.</p><p><a class="btn" style="text-decoration:none;display:inline-block" href="${esc(BUY_URL)}" target="_blank">Spoor Premium activeren</a></p></div>`;
- s+=`<p class="note">Spoor geeft geen medisch advies. Bij klachten die blijven of erger worden: praat met je huisarts.</p>`;
+ if(!premium)s+=`<div class="detail" style="margin-top:28px"><h3>Meer met Premium</h3><p class="mut" style="max-width:560px">Advies over al je gewoontes, niet enkel slaap en voeding. De test van 14 dagen om te checken of het echt werkt. En combinaties van gewoontes die samen meer effect hebben dan apart.</p><p><a class="btn" style="text-decoration:none;display:inline-block" href="${esc(BUY_URL)}" target="_blank">Corvitax Premium activeren</a></p></div>`;
+ s+=`<p class="note">Corvitax geeft geen medisch advies. Bij klachten die blijven of erger worden: praat met je huisarts.</p>`;
  return s}
-function startExp(xid){const it=adviceItems().find(a=>a.X.id===xid);if(!it)return;const EX=store.get('spoor_exp')||[];
+function startExp(xid){const it=adviceItems().find(a=>a.X.id===xid);if(!it)return;const EX=store.get('corvitax_exp')||[];
  const ys=[...new Set(findings().filter(f=>f.X.id===xid&&!f.Y.ctrl&&f.Y.dir!==0).map(f=>f.Y.id))].slice(0,4);
  const last=dates().slice(-1)[0]||today();
- EX.push({xid,more:it.more,thr:it.e0.sp.thr??null,t:it.t,start:store.get('spoor_demo')?addD(last,-9):today(),days:14,ys});store.set('spoor_exp',EX);render()}
-function stopExp(i){const EX=store.get('spoor_exp')||[];EX.splice(i,1);store.set('spoor_exp',EX);render()}
+ EX.push({xid,more:it.more,thr:it.e0.sp.thr??null,t:it.t,start:store.get('corvitax_demo')?addD(last,-9):today(),days:14,ys});store.set('corvitax_exp',EX);render()}
+function stopExp(i){const EX=store.get('corvitax_exp')||[];EX.splice(i,1);store.set('corvitax_exp',EX);render()}
 function expBlock(x,i){
  const X=byId(x.xid),D=dates(),end=addD(x.start,x.days),inn=D.filter(d=>d>=x.start&&d<end),before=D.filter(d=>d<x.start&&d>=addD(x.start,-28));
- const elapsed=Math.min(x.days,Math.max(0,Math.round((parse(store.get('spoor_demo')?D[D.length-1]:today())-parse(x.start))/864e5)+1));
+ const elapsed=Math.min(x.days,Math.max(0,Math.round((parse(store.get('corvitax_demo')?D[D.length-1]:today())-parse(x.start))/864e5)+1));
  const ok=inn.filter(d=>{const v=val(d,X);if(v==null)return false;if(X.type==='bool')return x.more?v===1:v===0;const t=x.thr??0;return x.more?v>t:v<=t}).length;
  const rows=x.ys.map(id=>{const Y=byId(id);if(!Y)return'';const a=inn.map(d=>val(d,Y)).filter(v=>v!=null),b=before.map(d=>val(d,Y)).filter(v=>v!=null),ma=mean(a),mb=mean(b);
   let c='';if(ma!=null&&mb!=null){const same=Math.abs(ma-mb)<.05*Math.abs(mb||1),good=(ma-mb)*Y.dir>0;c=`<span class="${same?'mut':good?'better':'worse'}">${same?'gelijk':good?'beter':'slechter'}</span>`}
   return`<tr><td>${esc(Y.name)}</td><td class="num mut">${fv(Y,mb)}</td><td class="num">${a.length?fv(Y,ma):'–'}</td><td>${c}</td></tr>`}).join('');
  const done=elapsed>=x.days;
  return`<h3>${esc(x.t)}</h3><div class="small mut">${done?'Test afgelopen':'Dag '+elapsed+' van '+x.days}, gelukt op ${ok} van ${inn.length} ingevulde dagen</div><div class="bar"><i style="width:${elapsed/x.days*100}%"></i></div>
- <table style="max-width:640px"><thead><tr><th>Wat Spoor meet</th><th>4 weken ervoor</th><th>Tijdens de test</th><th></th></tr></thead><tbody>${rows}</tbody></table>
+ <table style="max-width:640px"><thead><tr><th>Wat Corvitax meet</th><th>4 weken ervoor</th><th>Tijdens de test</th><th></th></tr></thead><tbody>${rows}</tbody></table>
  <p class="small"><button class="link" onclick="stopExp(${i})">${done?'Test afsluiten':'Test stoppen'}</button></p>`}
 
 /* ================= Instellingen ================= */
@@ -545,11 +545,11 @@ function premiumBlockHTML(){
  ${expired?`<p class="small" style="color:var(--neg)">Je code is niet meer geldig. Vul hem opnieuw in of koop een nieuwe.</p>`:''}
  <div class="controls"><input id="lkey" placeholder="bv. ABCD1234-EF56-..." style="min-width:260px"><button class="btn" onclick="submitLicense()">Code activeren</button></div>
  <p class="small mut" id="lkeyMsg">&nbsp;</p>
- <p><a class="ghost" style="text-decoration:none;display:inline-block" href="${esc(BUY_URL)}" target="_blank">Spoor Premium kopen</a></p>`}
+ <p><a class="ghost" style="text-decoration:none;display:inline-block" href="${esc(BUY_URL)}" target="_blank">Corvitax Premium kopen</a></p>`}
 function vData(){
  const n=Object.keys(E).length,cv=customVars(),h=hidden(),st=settings();
  return`<h1>Instellingen</h1><p class="lead">${n} dagen opgeslagen, alleen op dit toestel. Niets gaat naar een server.</p>
- <h2>Spoor Premium</h2>${premiumBlockHTML()}
+ <h2>Corvitax Premium</h2>${premiumBlockHTML()}
  <h2>Wat volg je</h2><p class="mut">Zet uit wat je niet wil invullen. Je gegevens blijven bewaard.</p>
  <div class="check">${BASE.map(v=>`<label><input type="checkbox" ${h.has(v.id)?'':'checked'} onchange="toggleVar('${v.id}',this.checked)">${esc(v.name)}</label>`).join('')}</div>
  <h2>Eigen variabele toevoegen</h2><p class="mut">Alles wat je wil volgen: een symptoom, een voedingsmiddel, medicatie, je cyclus.</p>
@@ -565,22 +565,22 @@ function vData(){
  <h2>Exporteren naar Excel</h2><p class="mut">CSV met een kolom <em>datum</em> en een kolom per variabele. Importeren kan in hetzelfde formaat.</p>
  <p><button class="ghost" onclick="exportCSV()">CSV downloaden</button> <label class="ghost">CSV importeren<input type="file" accept=".csv" style="display:none" onchange="importCSV(this.files[0])"></label></p>
  <h2>Opnieuw beginnen</h2><p><button class="link" onclick="loadDemo()">Voorbeelddata laden</button> &nbsp; <button class="link" onclick="startOwn()">Alles wissen</button></p>
- <p class="note">Op iPhone: open Spoor in Safari, tik op het deelicoon en kies "Zet op beginscherm". Dan werkt het als een gewone app, ook zonder internet.</p>`}
-function toggleVar(id,on){const h=hidden();on?h.delete(id):h.add(id);store.set('spoor_hidden',[...h]);CACHE=null}
+ <p class="note">Op iPhone: open Corvitax in Safari, tik op het deelicoon en kies "Zet op beginscherm". Dan werkt het als een gewone app, ook zonder internet.</p>`}
+function toggleVar(id,on){const h=hidden();on?h.delete(id):h.add(id);store.set('corvitax_hidden',[...h]);CACHE=null}
 function addVar(){const n=document.getElementById('cvn').value.trim();if(!n)return;const c=document.getElementById('cvc').value,t=document.getElementById('cvt').value;
  const v={id:'c_'+Date.now(),name:n,unit:document.getElementById('cvu').value.trim()||(t==='scale'?'/10':''),type:t,group:'Eigen variabelen',ctrl:c==='ctrl',dir:c==='ctrl'?0:c==='out+'?1:-1};
- const cv=customVars();cv.push(v);store.set('spoor_custom',cv);CACHE=null;render()}
-function delVar(id){if(!confirm('Variabele verwijderen? Ingevulde waarden blijven in je back-up.'))return;store.set('spoor_custom',customVars().filter(v=>v.id!==id));CACHE=null;render()}
+ const cv=customVars();cv.push(v);store.set('corvitax_custom',cv);CACHE=null;render()}
+function delVar(id){if(!confirm('Variabele verwijderen? Ingevulde waarden blijven in je back-up.'))return;store.set('corvitax_custom',customVars().filter(v=>v.id!==id));CACHE=null;render()}
 function dl(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
-function exportCSV(){const V=logVars(),rows=[['datum',...V.map(v=>v.id)].join(',')];Object.keys(E).sort().forEach(d=>rows.push([d,...V.map(v=>E[d][v.id]??'')].join(',')));dl('spoor-'+today()+'.csv',rows.join('\n'),'text/csv')}
-function importCSV(f){if(!f)return;f.text().then(t=>{const L=t.trim().split(/\r?\n/),h=L[0].split(/[,;]/);L.slice(1).forEach(l=>{const c=l.split(/[,;]/),d=c[0];if(!/^\d{4}-\d\d-\d\d$/.test(d))return;E[d]=E[d]||{};h.forEach((k,i)=>{if(i&&c[i]!==''&&c[i]!=null){const x=parseFloat(c[i].replace(',','.'));if(!isNaN(x))E[d][k]=x}})});store.set('spoor_demo',false);store.set('spoor_started',true);saveE();render()})}
-function backup(){const o={app:'spoor',versie:1,datum:today()};KEYS.forEach(k=>o[k]=store.get(k));dl('spoor-backup-'+today()+'.json',JSON.stringify(o),'application/json')}
-function restore(f){if(!f)return;f.text().then(t=>{try{const o=JSON.parse(t);if(o.app!=='spoor')throw 0;if(!confirm('Huidige gegevens vervangen door deze back-up?'))return;KEYS.forEach(k=>{if(k in o)store.set(k,o[k])});E=store.get('spoor_entries')||{};CACHE=null;render()}catch(e){alert('Dit is geen geldige Spoor-back-up.')}})}
-function loadDemo(){E=genDemo();store.set('spoor_demo',true);saveE();render()}
-function reminderICS(){const t=document.getElementById('rem').value||'21:00';const st=settings();st.reminder=t;store.set('spoor_settings',st);
+function exportCSV(){const V=logVars(),rows=[['datum',...V.map(v=>v.id)].join(',')];Object.keys(E).sort().forEach(d=>rows.push([d,...V.map(v=>E[d][v.id]??'')].join(',')));dl('corvitax-'+today()+'.csv',rows.join('\n'),'text/csv')}
+function importCSV(f){if(!f)return;f.text().then(t=>{const L=t.trim().split(/\r?\n/),h=L[0].split(/[,;]/);L.slice(1).forEach(l=>{const c=l.split(/[,;]/),d=c[0];if(!/^\d{4}-\d\d-\d\d$/.test(d))return;E[d]=E[d]||{};h.forEach((k,i)=>{if(i&&c[i]!==''&&c[i]!=null){const x=parseFloat(c[i].replace(',','.'));if(!isNaN(x))E[d][k]=x}})});store.set('corvitax_demo',false);store.set('corvitax_started',true);saveE();render()})}
+function backup(){const o={app:'corvitax',versie:1,datum:today()};KEYS.forEach(k=>o[k]=store.get(k));dl('corvitax-backup-'+today()+'.json',JSON.stringify(o),'application/json')}
+function restore(f){if(!f)return;f.text().then(t=>{try{const o=JSON.parse(t);if(o.app!=='corvitax')throw 0;if(!confirm('Huidige gegevens vervangen door deze back-up?'))return;KEYS.forEach(k=>{if(k in o)store.set(k,o[k])});E=store.get('corvitax_entries')||{};CACHE=null;render()}catch(e){alert('Dit is geen geldige Corvitax-back-up.')}})}
+function loadDemo(){E=genDemo();store.set('corvitax_demo',true);saveE();render()}
+function reminderICS(){const t=document.getElementById('rem').value||'21:00';const st=settings();st.reminder=t;store.set('corvitax_settings',st);
  const d=today().replace(/-/g,''),hm=t.replace(':','')+'00',now=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';
- const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Spoor//NL','CALSCALE:GREGORIAN','BEGIN:VEVENT','UID:spoor-herinnering-'+Date.now()+'@spoor','DTSTAMP:'+now,'DTSTART:'+d+'T'+hm,'DURATION:PT5M','RRULE:FREQ=DAILY','SUMMARY:Spoor invullen','DESCRIPTION:Twee minuten: hoe was je dag?','BEGIN:VALARM','TRIGGER:PT0M','ACTION:DISPLAY','DESCRIPTION:Spoor invullen','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
- dl('spoor-herinnering.ics',ics,'text/calendar')}
+ const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Corvitax//NL','CALSCALE:GREGORIAN','BEGIN:VEVENT','UID:corvitax-herinnering-'+Date.now()+'@corvitax','DTSTAMP:'+now,'DTSTART:'+d+'T'+hm,'DURATION:PT5M','RRULE:FREQ=DAILY','SUMMARY:Corvitax invullen','DESCRIPTION:Twee minuten: hoe was je dag?','BEGIN:VALARM','TRIGGER:PT0M','ACTION:DISPLAY','DESCRIPTION:Corvitax invullen','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+ dl('corvitax-herinnering.ics',ics,'text/calendar')}
 
 /* ================= offline ================= */
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
